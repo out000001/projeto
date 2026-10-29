@@ -11,14 +11,16 @@ import {
   Mail,
   CheckCircle,
   Shield,
-  Logout
+  Logout,
+  AlertTriangle
 } from "../../components/ui/Icons";
 import { useSession } from "../../contexts/SessionContext";
 import ProjectCard from "./components/ProjectCard";
 import ProjectFilters from "./components/ProjectFilters";
 import ProjectDetailModal from "./components/ProjectDetailModal";
 import useProjectFilters from "./hooks/useProjectFilters";
-import { projects, sortOptions, faq } from "./data/projects";
+import useProjects from "./hooks/useProjects";
+import { sortOptions, faq } from "./data/projects";
 
 function FaqItem({ item }) {
   const [open, setOpen] = useState(false);
@@ -57,6 +59,13 @@ export default function PublicLanding({ authenticated = false }) {
   const navigate = useNavigate();
   const { logout } = useSession();
   const [selectedProject, setSelectedProject] = useState(null);
+  // Sprint 11: a vitrine lê os projetos da API (/api/projects), não do mock local.
+  const {
+    items: projects,
+    loading: projectsLoading,
+    error: projectsError,
+    reload: reloadProjects
+  } = useProjects();
   const {
     search,
     area,
@@ -162,6 +171,29 @@ export default function PublicLanding({ authenticated = false }) {
         </aside>
 
         <main className="lg:col-span-9">
+          {projectsLoading && (
+            <div
+              role="status"
+              className="mt-6 flex flex-col items-center justify-center gap-3 rounded-2xl bg-surface-container-lowest py-12 text-center shadow-sm"
+            >
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <p className="text-body-md text-on-surface-variant">Carregando projetos da API...</p>
+            </div>
+          )}
+
+          {!projectsLoading && projectsError && (
+            <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border border-error-container bg-error-container/20 py-12 text-center shadow-sm">
+              <AlertTriangle className="h-8 w-8 text-error" />
+              <p className="mt-3 text-lg font-semibold text-on-surface">Não foi possível carregar os projetos</p>
+              <p className="text-body-md text-on-surface-variant">{projectsError}</p>
+              <Button variant="secondary" onClick={reloadProjects} className="mt-4">
+                Tentar novamente
+              </Button>
+            </div>
+          )}
+
+          {!projectsLoading && !projectsError && (
+          <>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="font-headline-md font-semibold text-on-surface">Oportunidades Disponíveis</h2>
@@ -213,6 +245,8 @@ export default function PublicLanding({ authenticated = false }) {
                 </Button>
               )}
             </div>
+          )}
+          </>
           )}
         </main>
       </div>

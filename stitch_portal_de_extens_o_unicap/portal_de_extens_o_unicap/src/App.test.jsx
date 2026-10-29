@@ -1,9 +1,22 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
 import { SessionProvider } from "./contexts/SessionContext";
+import { resetApiMock } from "./services/apiMock";
+
+// Sprint 11: o front autentica contra a API real. Os testes rodam contra o
+// mock de contrato (server/seed.js), então usam as credenciais de demonstração.
+vi.mock("./services/api", () => import("./services/apiMock"));
+
+const GESTOR = { identifier: "ana.souza@unicap.br", password: "gestor123" };
+const ESTUDANTE = { identifier: "20241001@unicap.br", password: "estudante123" };
+
+beforeEach(() => {
+  window.localStorage.clear();
+  resetApiMock();
+});
 
 function renderWithRouter(element, initialPath = "/") {
   return render(
@@ -11,6 +24,13 @@ function renderWithRouter(element, initialPath = "/") {
       <SessionProvider>{element}</SessionProvider>
     </MemoryRouter>
   );
+}
+
+async function loginThroughForm(user, { profileCard, credentials }) {
+  await user.click(screen.getByText(profileCard));
+  await user.type(screen.getByLabelText(/login institucional/i), credentials.identifier);
+  await user.type(screen.getByLabelText(/senha de acesso/i), credentials.password);
+  await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
 }
 
 describe("Sprint 1 — acesso e roteamento", () => {
@@ -22,33 +42,30 @@ describe("Sprint 1 — acesso e roteamento", () => {
 
   it("login redireciona para dashboard após credenciais válidas", async () => {
     const user = userEvent.setup();
+    renderWithRouter(<App />, "/");
 
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
-      </MemoryRouter>
-    );
-
-    await user.click(screen.getByText(/gestor \/ docente/i));
-    expect(screen.getByRole("button", { name: /entrar no painel de gestão/i })).toBeInTheDocument();
-
-    await user.type(screen.getByLabelText(/login institucional/i), "teste@unicap.br");
-    await user.type(screen.getByLabelText(/senha de acesso/i), "123456");
-    await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
+    await loginThroughForm(user, { profileCard: /gestor \/ docente/i, credentials: GESTOR });
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: /painel de gestão da extensão comunitária/i })).toBeInTheDocument();
     });
   });
+
+  it("credenciais inválidas exibem o erro da API", async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<App />, "/");
+
+    await user.click(screen.getByText(/gestor \/ docente/i));
+    await user.type(screen.getByLabelText(/login institucional/i), "ana.souza@unicap.br");
+    await user.type(screen.getByLabelText(/senha de acesso/i), "senha-errada");
+    await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
+
+    expect(await screen.findByText(/identificação ou senha inválidos/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/login institucional/i)).toBeInTheDocument();
+  });
 });
 
 describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
-  beforeEach(() => {
-    window.localStorage.clear();
-  });
-
   it("visitante em rota protegida é redirecionado para o login", async () => {
     renderWithRouter(<App />, "/settings");
 
@@ -60,18 +77,9 @@ describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
 
   it("login de estudante abre a vitrine pública com cabeçalho autenticado", async () => {
     const user = userEvent.setup();
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
-      </MemoryRouter>
-    );
+    renderWithRouter(<App />, "/");
 
-    await user.click(screen.getByText(/estudante \/ comunidade/i));
-    await user.type(screen.getByLabelText(/login institucional/i), "aluna@unicap.br");
-    await user.type(screen.getByLabelText(/senha de acesso/i), "123456");
-    await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
+    await loginThroughForm(user, { profileCard: /estudante \/ comunidade/i, credentials: ESTUDANTE });
 
     expect(
       await screen.findByRole("heading", { name: /conectando a unicap/i })
@@ -102,63 +110,51 @@ describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
 
   it("sessão persiste entre recargas quando 'manter conectada' está marcada", async () => {
     const user = userEvent.setup();
-    const first = render(
-      <MemoryRouter initialEntries={["/"]}>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
-      </MemoryRouter>
-    );
+    const first = renderWithRouter(<App />, "/");
 
-    await user.click(screen.getByText(/gestor \/ docente/i));
-    await user.type(screen.getByLabelText(/login institucional/i), "prof@unicap.br");
-    await user.type(screen.getByLabelText(/senha de acesso/i), "123456");
-    await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
+    await loginThroughForm(user, { profileCard: /gestor \/ docente/i, credentials: GESTOR });
     await screen.findByRole("heading", { name: /painel de gestão da extensão comunitária/i });
 
     expect(window.localStorage.getItem("unicap:session:v1")).toBeTruthy();
     first.unmount();
 
-    render(
-      <MemoryRouter initialEntries={["/dashboard"]}>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
-      </MemoryRouter>
-    );
+    renderWithRouter(<App />, "/dashboard");
 
     expect(
       await screen.findByRole("heading", { name: /painel de gestão da extensão comunitária/i })
     ).toBeInTheDocument();
   });
 
+  it("token inválido no armazenamento limpa a sessão e volta ao login", async () => {
+    // Simula um token legado/expirado gravado manualmente.
+    window.localStorage.setItem(
+      "unicap:session:v1",
+      JSON.stringify({ token: "token-expirado", profile: "gestor" })
+    );
+
+    renderWithRouter(<App />, "/dashboard");
+
+    expect(
+      await screen.findByRole("heading", { name: /portal de extensão comunitária/i })
+    ).toBeInTheDocument();
+    expect(window.localStorage.getItem("unicap:session:v1")).toBeNull();
+  });
+
   it("desmarcar 'manter conectada' não persiste a sessão", async () => {
     const user = userEvent.setup();
-    const first = render(
-      <MemoryRouter initialEntries={["/"]}>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
-      </MemoryRouter>
-    );
+    const first = renderWithRouter(<App />, "/");
 
     await user.click(screen.getByText(/gestor \/ docente/i));
     await user.click(screen.getByRole("checkbox", { name: /manter sessão/i }));
-    await user.type(screen.getByLabelText(/login institucional/i), "prof@unicap.br");
-    await user.type(screen.getByLabelText(/senha de acesso/i), "123456");
+    await user.type(screen.getByLabelText(/login institucional/i), GESTOR.identifier);
+    await user.type(screen.getByLabelText(/senha de acesso/i), GESTOR.password);
     await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
     await screen.findByRole("heading", { name: /painel de gestão da extensão comunitária/i });
 
     expect(window.localStorage.getItem("unicap:session:v1")).toBeNull();
     first.unmount();
 
-    render(
-      <MemoryRouter initialEntries={["/dashboard"]}>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
-      </MemoryRouter>
-    );
+    renderWithRouter(<App />, "/dashboard");
 
     expect(
       await screen.findByRole("heading", { name: /portal de extensão comunitária/i })

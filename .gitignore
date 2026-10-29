@@ -27,3 +27,6 @@ Thumbs.db
 .eslintcache
 *.tsbuildinfo
 .vite/
+
+# Banco de dados da API (SQLite, gerado no primeiro `bun run api`)
+**/server/data/

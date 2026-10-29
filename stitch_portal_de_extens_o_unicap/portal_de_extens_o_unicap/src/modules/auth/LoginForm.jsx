@@ -24,7 +24,7 @@ const profiles = [
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const { login, loading, error, isAuthenticated } = useSession();
+  const { login, loading, isAuthenticated } = useSession();
   const [profile, setProfile] = useState("gestor");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -40,14 +40,16 @@ export default function LoginForm() {
     event.preventDefault();
     setFormError(null);
 
-    const success = await login(identifier, password, profile, { persist: keepSession });
-    if (!success) {
-      setFormError(error || "Não foi possível fazer login.");
+    // O servidor é a autoridade: o perfil vem do back-end (credencial), não do
+    // cartão selecionado — que vira apenas uma dica visual.
+    const result = await login(identifier, password, { persist: keepSession });
+    if (!result.ok) {
+      setFormError(result.error || "Não foi possível fazer login.");
       return;
     }
 
     // Cada perfil segue para a sua área inicial.
-    navigate(profile === "gestor" ? "/dashboard" : "/public", { replace: true });
+    navigate(result.user.profile === "gestor" ? "/dashboard" : "/public", { replace: true });
   };
 
   return (

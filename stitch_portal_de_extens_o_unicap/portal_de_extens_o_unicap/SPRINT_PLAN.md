@@ -1,7 +1,7 @@
 ---
 title: Portal de Extensão UNICAP - Sprint Plan
-status: concluido (Sprints 0-6 concluídas)
-stack: HTML / Tailwind / (future: React + TS)
+status: concluido (Sprints 0-11 concluídas)
+stack: Vite + React 18 (JSX) + Tailwind / back-end Node + Express + SQLite
 goal: transformar as telas conceituais em um site modular, testável e mantível
 ---
 
@@ -299,6 +299,78 @@ Critérios de aceitação:
 - o sistema se comporta de forma previsível,
 - o código está mais fácil de manter,
 - não há pontos óbvios de frustração no fluxo principal.
+
+---
+
+### Sprint 9 - Início do Back-end (API REST) ✅ (concluída)
+
+Implementação:
+- stack escolhida: **Node + Express** com persistência **em memória + seed** (sem serviço externo nesta etapa),
+- `server/app.js` — fábrica `createApp(store)` (JSON body parser, CORS, rotas, 404 e handler de erro em JSON) — testável sem subir processo,
+- `server/index.js` — entrypoint (`bun run api`; porta `API_PORT`, default 3001), binding em `0.0.0.0`,
+- `server/store.js` — repositório em memória (única porta de acesso a dados): sessões por token opaco, busca de usuário, listagem/detalhe de projetos; regras puras exportadas (`filterProjects`, `normalizeText`, busca sem acento/caixa),
+- `server/seed.js` — 2 usuários-demo (gestor/estudante) + reuso dos dados puros da vitrine (`src/modules/public/data/projects.js`),
+- `server/errors.js` — `ApiError` + formato único de resposta de erro `{ error: { code, message } }` (404 de rota, JSON malformado → 400 INVALID_JSON, 500 sem vazar detalhe interno),
+- rotas: `GET /api/health`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`, `GET /api/projects` (filtros `q`, `area`, `local`) e `GET /api/projects/:id`,
+- `server/app.test.js` — 21 testes de integração com **supertest** (HTTP real em memória): saúde, login válido/inválido, exposição de senha, sessão (me/logout), filtros de projeto, 404 e JSON inválido.
+
+Critérios de aceitação atendidos:
+- existe uma API executável (`bun run api`) com contratos JSON documentados pelos testes,
+- autenticação e projeção de dados funcionam de ponta a ponta (login → token → /me → logout invalida),
+- a persistência está isolada em um repositório (troca por banco real não afeta rotas),
+- suíte completa, lint e build verdes (160 testes).
+
+Pendências para as próximas entregas: hash de senha e JWT, CORS restrito ao domínio do front, persistência real (banco), consumo da API pelo front e CRUD completo de projetos.
+
+---
+
+### Sprint 10 - Persistência com SQLite ✅ (concluída)
+
+Implementação:
+- `server/store.js` reescrito como repositório **SQLite** (`node:sqlite`, sem nova dependência) mantendo a MESMA interface — as rotas e os testes de integração da Sprint 9 passaram a rodar sobre o schema real sem nenhuma mudança de contrato,
+- `server/db.js` — abre/cria o schema (`users`, `sessions`, `projects`) e aplica **seed idempotente** em `server/data/portal.db` (ignorado pelo git; `:memory:` nos testes); colunas normalizadas `area_norm`, `local_norm` e `search_text` indexam a busca sem acento/caixa feita em SQL,
+- `server/passwords.js` — senhas com hash **scrypt + salt aleatório** (`node:crypto`), verificação em tempo seguro com `timingSafeEqual`; o hash nunca contém a senha em texto puro,
+- `server/text.js` — utilidades puras isoladas (`normalizeText`, `isDefaultFilter`),
+- `server/persistence.test.js` — 10 testes: reabertura do MESMO arquivo com store novo (sessão e projetos sobrevivem), seed idempotente (sem duplicação), hash scrypt e texto puro.
+
+Correções encontradas ao validar:
+- `isDefaultFilter` usava `startsWith("toda")` e não cobria "Todos os locais" — regex `^(toda|todo)`;
+- `node:sqlite` não é listado como builtin pelo analyzer do Vite (quebrava o collect dos testes) — carregado via `createRequire`.
+
+Critérios de aceitação atendidos:
+- dados sobrevivem a reinício do processo (validado com dois processos reais: token do 1º usado no 2º via `/me` → 200),
+- senha nunca é persistida em texto puro,
+- rotas inalteradas (a troca de repositório foi transparente),
+- suíte completa, lint e build verdes (170 testes).
+
+Pendências seguintes: JWT com expiração, CORS restrito ao domínio do front, CRUD completo de projetos e consumo da API pelo front.
+
+---
+
+### Sprint 11 - Ligação Front ↔ Back ✅ (concluída)
+
+Objetivo:
+ fazer o site deixar de rodar com dados mockados: vitrine e sessão passam a ler da API real (SQLite + seed), sem quebrar nada do que já estava operante.
+
+Implementação:
+- `src/services/api.js` — cliente HTTP único (único ponto de saída do front para a rede): `ApiError` (mensagem do `{ error: { code, message } }` do back, com `status`/`code`), `resolveApiBaseUrl()` (prioriza `VITE_API_URL`; no preview do Freebuff deriva a URL da API trocando a porta `5173-<id>` → `3001-<id>` do mesmo host; em dev local, `host:3001`) e as chamadas `loginRequest`, `meRequest`, `logoutRequest`, `fetchProjects`;
+- `SessionContext` servidor-backed: login via `POST /api/auth/login` (token e perfil vêm do back), restauração da sessão persistida valida o token contra `GET /api/auth/me` (o servidor é a autoridade: token inválido/expirado limpa o `localStorage`), `logout` chama `POST /api/auth/logout` em best-effort;
+- `App.jsx`: rota `/`, `ProtectedRoute` e `PageLoader` aguardam `restoring` (validação do token) antes de decidir redirecionamento — sem “piscar” a tela de login;
+- `PublicLanding.jsx` lê `GET /api/projects` com estados de carregando, erro (com “Tentar novamente”) e lista vazia — os filtros/ordenação continuam puros sobre a resposta;
+- testes adaptados ao contrato real (`App.test`, `PublicLanding.test` mockam `services/api`);
+- `scripts/dev-with-api.sh` — preview único com API + front: Vite sobe primeiro (o preview identifica a 5173) e a API só depois que o 5173 escuta; comando salvo com `freebuff-preview set`.
+
+Bugs reais encontrados e corrigidos ao ligar:
+- um único flag de `loading` fazia o `PageLoader` substituir a tela durante o submit, desmontando o `LoginForm` e perdendo o `setFormError` — separados `restoring` (validação do token) × `loading` (submissão do formulário);
+- no `/me` que falhava, a troca de token disparava o cleanup antes do `finally`, que ficava engolido e a tela travava em “Verificando acesso...” — `setRestoring(false)` passou a ser incondicional no `.finally`.
+
+Critérios de aceitação atendidos:
+- a vitrine mostra os projetos que estão no SQLite (reabrir a página lê do banco, não do mock);
+- login/logout/restauração de sessão usam a API (usuário errado → 401 com mensagem, token inválido → volta para o login sem travar);
+- preview único serve API + front e o fluxo foi verificado de ponta a ponta pelo proxy público (front 200, `/api/projects` 200, login 200 → `/me` 200 → logout 204, 401 sem token, preflight CORS 204);
+- suíte completa, lint e build verdes (174 testes).
+
+Pendências seguintes: JWT com expiração, CORS restrito ao domínio do front, CRUD completo de projetos (a vitrine continua somente leitura) e demais módulos (submissão, acompanhamento, painel) migrados dos mocks locais para a API.
 
 ---
 

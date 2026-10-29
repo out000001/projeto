@@ -31,6 +31,7 @@ export default [
         Blob: "readonly",
         HTMLAnchorElement: "readonly",
         process: "readonly",
+        Buffer: "readonly",
         File: "readonly",
         FileReader: "readonly",
         FormData: "readonly",

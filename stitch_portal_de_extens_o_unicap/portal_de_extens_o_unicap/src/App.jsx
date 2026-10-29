@@ -12,7 +12,13 @@ import ProjectTracking from "./modules/project-tracking/ProjectTracking";
 import SettingsScreen from "./modules/settings/Settings";
 
 function ProtectedRoute({ children, allowedProfile }) {
-  const { profile, isAuthenticated } = useSession();
+  const { profile, isAuthenticated, restoring } = useSession();
+
+  // Sprint 11: com sessão persistida, o token é validado no servidor antes de
+  // decidir o redirecionamento — aguardar (sem "piscar" a tela de login).
+  if (restoring) {
+    return <PageLoader />;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -65,8 +71,8 @@ function PublicPage() {
 }
 
 function PageLoader() {
-  const { loading } = useSession();
-  if (loading) {
+  const { restoring } = useSession();
+  if (restoring) {
     return (
       <div className="mx-auto flex max-w-sm items-center justify-center gap-3 rounded-xl border border-surface-container-high bg-surface-container-lowest py-12 shadow-sm">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />

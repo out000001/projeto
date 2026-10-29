@@ -114,7 +114,7 @@ describe("Sprint 11 — vitrine consumindo a API", () => {
       </SessionProvider>
     );
 
-    expect(screen.getByRole("status")).toHaveTextContent(/carregando projetos da api/i);
+    expect(screen.getByRole("status")).toHaveTextContent(/carregando projetos/i);
     expect(screen.queryByText(/projetos com editais ativos/i)).not.toBeInTheDocument();
 
     await act(async () => {

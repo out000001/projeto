@@ -1,6 +1,4 @@
-// Carrega os projetos da vitrine a partir da API (/api/projects) e expõe os
-// estados de carregamento/erro com ação de tentar novamente. Enquanto a API
-// estiver indisponível, a vitrine mostra o erro — nunca dados inventados.
+// Carrega o catálogo público do Firestore. Erros não são substituídos por mocks.
 
 import { useState, useEffect, useCallback } from "react";
 import { fetchProjects } from "../../../services/api";

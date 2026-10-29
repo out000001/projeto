@@ -59,7 +59,7 @@ export default function PublicLanding({ authenticated = false }) {
   const navigate = useNavigate();
   const { logout } = useSession();
   const [selectedProject, setSelectedProject] = useState(null);
-  // Sprint 11: a vitrine lê os projetos da API (/api/projects), não do mock local.
+  // A vitrine lê somente o catálogo público do Firestore.
   const {
     items: projects,
     loading: projectsLoading,
@@ -84,9 +84,8 @@ export default function PublicLanding({ authenticated = false }) {
     clearFilters
   } = useProjectFilters(projects);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/", { replace: true });
+  const handleLogout = async () => {
+    if (await logout()) navigate("/", { replace: true });
   };
 
   const handleEnroll = (project) => {
@@ -177,7 +176,7 @@ export default function PublicLanding({ authenticated = false }) {
               className="mt-6 flex flex-col items-center justify-center gap-3 rounded-2xl bg-surface-container-lowest py-12 text-center shadow-sm"
             >
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              <p className="text-body-md text-on-surface-variant">Carregando projetos da API...</p>
+              <p className="text-body-md text-on-surface-variant">Carregando projetos...</p>
             </div>
           )}
 

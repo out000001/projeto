@@ -103,7 +103,7 @@ export default function ProjectCard({ project, onViewDetails, onEnroll }) {
 
 ProjectCard.propTypes = {
   project: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     title: PropTypes.string.isRequired,
     shortDesc: PropTypes.string.isRequired,
     modality: PropTypes.string.isRequired,

@@ -98,7 +98,7 @@ export default function ProjectDetailModal({ project, onClose, onEnroll }) {
 
 ProjectDetailModal.propTypes = {
   project: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     modality: PropTypes.string.isRequired,

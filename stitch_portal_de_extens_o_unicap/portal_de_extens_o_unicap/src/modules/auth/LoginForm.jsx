@@ -24,7 +24,7 @@ const profiles = [
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const { login, loading, isAuthenticated } = useSession();
+  const { login, loading, isAuthenticated, error } = useSession();
   const [profile, setProfile] = useState("gestor");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -40,7 +40,7 @@ export default function LoginForm() {
     event.preventDefault();
     setFormError(null);
 
-    // O servidor é a autoridade: o perfil vem do back-end (credencial), não do
+    // O perfil autorizado vem do Firestore, não do
     // cartão selecionado — que vira apenas uma dica visual.
     const result = await login(identifier, password, { persist: keepSession });
     if (!result.ok) {
@@ -102,20 +102,20 @@ export default function LoginForm() {
           <span className="font-label-md font-semibold text-on-surface">Credenciais de Acesso</span>
         </div>
 
-        {formError && (
+        {(formError || error) && (
           <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
             <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-            {formError}
+            {formError || error}
           </div>
         )}
 
         <Input
-          label="Login Institucional (@unicap.br) ou Matrícula Docente"
+          label="Login Institucional (e-mail)"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          placeholder="Ex: prof.sobrenome@unicap.br ou 202010482"
+          placeholder="Ex: prof.sobrenome@unicap.br"
           required
-          hint="Credencial de servidor ou matrícula"
+          hint="Use o e-mail cadastrado para sua conta"
         />
 
         <div className="flex flex-col gap-1.5">

@@ -1,17 +1,21 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionProvider } from "../../contexts/SessionContext";
 import SettingsScreen from "./Settings";
 
+vi.mock("../../services/api", () => import("../../services/apiMock"));
+
 const STORAGE_KEY = "portal-unicap.settings.v1";
 
-function renderSettings() {
-  return render(
+async function renderSettings() {
+  let result;
+  await act(async () => { result = render(
     <SessionProvider>
       <SettingsScreen />
     </SessionProvider>
-  );
+  ); });
+  return result;
 }
 
 beforeEach(() => {
@@ -19,8 +23,8 @@ beforeEach(() => {
 });
 
 describe("Sprint 7 — tela de configurações da conta", () => {
-  it("renderiza as quatro seções com valores padrão e botão salvar desabilitado", () => {
-    renderSettings();
+  it("renderiza as quatro seções com valores padrão e botão salvar desabilitado", async () => {
+    await renderSettings();
 
     expect(screen.getByRole("heading", { name: /configurações da conta/i })).toBeInTheDocument();
     for (const section of ["Perfil", "Vínculo Institucional", "Notificações", "Privacidade & Segurança"]) {
@@ -33,7 +37,7 @@ describe("Sprint 7 — tela de configurações da conta", () => {
     expect(screen.getByRole("button", { name: /salvar configurações/i })).toBeDisabled();
   });
 
-  it("carrega preferências previamente salvas do localStorage", () => {
+  it("carrega preferências previamente salvas do localStorage", async () => {
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -48,7 +52,7 @@ describe("Sprint 7 — tela de configurações da conta", () => {
         sessionTimeoutMinutes: 60
       })
     );
-    renderSettings();
+    await renderSettings();
 
     expect(screen.getByLabelText("Nome de exibição")).toHaveValue("Maria Silva");
     expect(screen.getByRole("switch", { name: "Novos editais" })).toBeChecked();
@@ -58,7 +62,7 @@ describe("Sprint 7 — tela de configurações da conta", () => {
 
   it("valida campos inválidos e impede salvar", async () => {
     const user = userEvent.setup();
-    renderSettings();
+    await renderSettings();
 
     await user.type(screen.getByLabelText("E-mail alternativo"), "email-invalido");
     const daysInput = screen.getByLabelText("Antecedência do alerta de prazos (dias)");
@@ -72,7 +76,7 @@ describe("Sprint 7 — tela de configurações da conta", () => {
 
   it("salva alterações no localStorage e sincroniza o estado salvo", async () => {
     const user = userEvent.setup();
-    renderSettings();
+    await renderSettings();
 
     await user.type(screen.getByLabelText("Nome de exibição"), "Maria Silva");
     await user.click(screen.getByRole("switch", { name: "Novos editais" }));
@@ -92,7 +96,7 @@ describe("Sprint 7 — tela de configurações da conta", () => {
   it("restaurar padrões apaga o localStorage e volta aos valores iniciais", async () => {
     const user = userEvent.setup();
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ displayName: "Maria Silva" }));
-    renderSettings();
+    await renderSettings();
 
     expect(screen.getByLabelText("Nome de exibição")).toHaveValue("Maria Silva");
 

@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isManager() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.profile == 'gestor';
+    }
+
+    // Only the public catalogue belongs here. Keep private data elsewhere.
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create, update, delete: if isManager();
+    }
+
+    // Assign roles in the console or trusted Admin SDK code, never in the client.
+    match /users/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -3,11 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
-import { SessionProvider } from "./contexts/SessionContext";
 import { resetApiMock } from "./services/apiMock";
 
-// Sprint 11: o front autentica contra a API real. Os testes rodam contra o
-// mock de contrato (server/seed.js), então usam as credenciais de demonstração.
+// UI tests use a contract double; Firebase SDK and rules have separate tests.
+// These demo credentials exist only in the test double and legacy SQLite API.
 vi.mock("./services/api", () => import("./services/apiMock"));
 
 const GESTOR = { identifier: "ana.souza@unicap.br", password: "gestor123" };
@@ -21,22 +20,22 @@ beforeEach(() => {
 function renderWithRouter(element, initialPath = "/") {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
-      <SessionProvider>{element}</SessionProvider>
+      {element}
     </MemoryRouter>
   );
 }
 
 async function loginThroughForm(user, { profileCard, credentials }) {
-  await user.click(screen.getByText(profileCard));
+  await user.click(await screen.findByText(profileCard));
   await user.type(screen.getByLabelText(/login institucional/i), credentials.identifier);
   await user.type(screen.getByLabelText(/senha de acesso/i), credentials.password);
   await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
 }
 
 describe("Sprint 1 — acesso e roteamento", () => {
-  it("renderiza o formulário de login na página inicial", () => {
+  it("renderiza o formulário de login na página inicial", async () => {
     renderWithRouter(<App />, "/");
-    expect(screen.getByRole("heading", { name: /portal de extensão comunitária/i })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /portal de extensão comunitária/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/login institucional/i)).toBeInTheDocument();
   });
 
@@ -55,7 +54,7 @@ describe("Sprint 1 — acesso e roteamento", () => {
     const user = userEvent.setup();
     renderWithRouter(<App />, "/");
 
-    await user.click(screen.getByText(/gestor \/ docente/i));
+    await user.click(await screen.findByText(/gestor \/ docente/i));
     await user.type(screen.getByLabelText(/login institucional/i), "ana.souza@unicap.br");
     await user.type(screen.getByLabelText(/senha de acesso/i), "senha-errada");
     await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
@@ -105,7 +104,7 @@ describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
     expect(
       await screen.findByRole("heading", { name: /portal de extensão comunitária/i })
     ).toBeInTheDocument();
-    expect(window.localStorage.getItem("unicap:session:v1")).toBeNull();
+    expect(window.localStorage.getItem("unicap:test-auth")).toBeNull();
   });
 
   it("sessão persiste entre recargas quando 'manter conectada' está marcada", async () => {
@@ -115,7 +114,7 @@ describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
     await loginThroughForm(user, { profileCard: /gestor \/ docente/i, credentials: GESTOR });
     await screen.findByRole("heading", { name: /painel de gestão da extensão comunitária/i });
 
-    expect(window.localStorage.getItem("unicap:session:v1")).toBeTruthy();
+    expect(window.localStorage.getItem("unicap:test-auth")).toBeTruthy();
     first.unmount();
 
     renderWithRouter(<App />, "/dashboard");
@@ -138,20 +137,21 @@ describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
       await screen.findByRole("heading", { name: /portal de extensão comunitária/i })
     ).toBeInTheDocument();
     expect(window.localStorage.getItem("unicap:session:v1")).toBeNull();
+    expect(window.localStorage.getItem("unicap:test-auth")).toBeNull();
   });
 
   it("desmarcar 'manter conectada' não persiste a sessão", async () => {
     const user = userEvent.setup();
     const first = renderWithRouter(<App />, "/");
 
-    await user.click(screen.getByText(/gestor \/ docente/i));
+    await user.click(await screen.findByText(/gestor \/ docente/i));
     await user.click(screen.getByRole("checkbox", { name: /manter sessão/i }));
     await user.type(screen.getByLabelText(/login institucional/i), GESTOR.identifier);
     await user.type(screen.getByLabelText(/senha de acesso/i), GESTOR.password);
     await user.click(screen.getByRole("button", { name: /entrar no painel de gestão/i }));
     await screen.findByRole("heading", { name: /painel de gestão da extensão comunitária/i });
 
-    expect(window.localStorage.getItem("unicap:session:v1")).toBeNull();
+    expect(window.localStorage.getItem("unicap:test-auth")).toBeNull();
     first.unmount();
 
     renderWithRouter(<App />, "/dashboard");

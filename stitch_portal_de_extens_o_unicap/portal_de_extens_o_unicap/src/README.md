@@ -1,3 +1,8 @@
+> **Firebase (atual):** login e sessão usam Firebase Authentication; a vitrine lê
+> `projects` no Firestore. Consulte [FIREBASE_SETUP.md](../FIREBASE_SETUP.md) para
+> publicar regras, criar o perfil gestor, importar projetos e executar os emuladores.
+> As seções abaixo sobre login e vitrine pela API SQLite descrevem o fluxo legado.
+
 # Portal de Extensão UNICAP — Arquitetura do Front-end
 
 Guia rápido para desenvolver neste projeto. Consulte também `../PROJECT_BRAIN.md`

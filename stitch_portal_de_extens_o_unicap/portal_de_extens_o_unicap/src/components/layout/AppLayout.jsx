@@ -31,15 +31,14 @@ const communityNav = [
 ];
 
 export default function AppLayout({ children }) {
-  const { profile, logout } = useSession();
+  const { profile, logout, error } = useSession();
   const navigate = useNavigate();
   const [helpOpen, setHelpOpen] = useState(false);
   const links = profile === "gestor" ? managerNav : communityNav;
 
   // Sair sempre encerra a sessão e devolve o usuário à tela de login.
-  const handleLogout = () => {
-    logout();
-    navigate("/", { replace: true });
+  const handleLogout = async () => {
+    if (await logout()) navigate("/", { replace: true });
   };
 
   return (
@@ -98,6 +97,7 @@ export default function AppLayout({ children }) {
           </div>
         </div>
       </header>
+      {error && <p role="alert" className="mx-auto mt-4 max-w-4xl px-6 text-red-800">{error}</p>}
 
       <div className="flex flex-1 flex-col">
         <main className="flex-1 px-6 py-8">

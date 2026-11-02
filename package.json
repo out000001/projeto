@@ -15,6 +15,6 @@
   "homepage": "https://github.com/out000001/projeto#readme",
   "private": true,
   "dependencies": {
-    "firebase-admin": "^14.5.0"
+    "firebase-admin": "13.6.0"
   }
 }

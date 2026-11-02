@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { SessionProvider, useSession } from "./contexts/SessionContext";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import AppLayout from "./components/layout/AppLayout";
@@ -10,6 +10,22 @@ import ManagerDashboard from "./modules/manager-dashboard/ManagerDashboard";
 import ProjectSubmission from "./modules/project-submission/ProjectSubmission";
 import ProjectTracking from "./modules/project-tracking/ProjectTracking";
 import SettingsScreen from "./modules/settings/Settings";
+
+function RouteScrollReset() {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    const previous = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    return () => { window.history.scrollRestoration = previous; };
+  }, []);
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
+
+  return null;
+}
 
 function ProtectedRoute({ children, allowedProfile }) {
   const { profile, isAuthenticated, restoring } = useSession();
@@ -111,6 +127,7 @@ export default function App() {
   return (
     <SessionProvider>
       <ErrorBoundary>
+        <RouteScrollReset />
         <Routes>
         <Route path="/" element={<PageLoader />} />
         <Route path="/public" element={<PublicPage />} />

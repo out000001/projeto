@@ -19,7 +19,8 @@ export default function RegistrationForm({ onBack }) {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    headingRef.current?.focus();
+    headingRef.current?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     document.title = "Criar conta · Portal de Extensão UNICAP";
     return () => { document.title = "Entrar · Portal de Extensão UNICAP"; };
   }, []);

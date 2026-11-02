@@ -5,6 +5,8 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { Shield, Lock, LockOpen, Mail, Eye, EyeOff } from "../../components/ui/Icons";
 
+import RegistrationForm from "./RegistrationForm";
+
 const profiles = [
   {
     id: "gestor",
@@ -24,6 +26,7 @@ const profiles = [
 
 export default function LoginForm() {
   const navigate = useNavigate();
+  const [registering, setRegistering] = useState(false);
   const { login, loading, isAuthenticated, error } = useSession();
   const [profile, setProfile] = useState("gestor");
   const [identifier, setIdentifier] = useState("");
@@ -35,6 +38,8 @@ export default function LoginForm() {
   if (isAuthenticated) {
     return null;
   }
+
+  if (registering) return <RegistrationForm onBack={() => setRegistering(false)} />;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -170,6 +175,8 @@ export default function LoginForm() {
           </Button>
         </div>
       </form>
+
+      <Button type="button" variant="outline" onClick={() => setRegistering(true)}>Não tenho conta — Criar cadastro</Button>
 
       <p className="text-center text-body-sm text-on-surface-variant">
         Dúvidas sobre credenciamento?{" "}

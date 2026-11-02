@@ -46,3 +46,32 @@ Criar arquivos e enviar ao GitHub não cria um projeto Vercel nem publica regras
 O deploy precisa de uma conexão Vercel autorizada; alterações administrativas
 Firebase precisam de acesso ao console ou identidade administrativa autorizada.
 Não envie tokens ou arquivos de chave privada pelo chat.
+
+## Cadastro de alunos e gestores
+
+O login agora oferece **Não tenho conta — Criar cadastro**. Alunos/comunidade
+recebem `estudante`; gestores precisam informar a chave compartilhada. Após o
+sucesso, a pessoa entra normalmente com e-mail e senha.
+
+Antes de publicar, configure no Vercel (Settings → Environment Variables):
+
+- `MANAGER_REGISTRATION_KEY`: uma chave aleatória longa, compartilhada apenas com
+  os gestores. Não use prefixo `VITE_`. Para trocar a chave, atualize e publique novamente.
+- `FIREBASE_SERVICE_ACCOUNT_JSON`: JSON de uma conta de serviço do projeto
+  `portaldeextensaocomunitaria`, com permissão de administrar Firebase Auth e
+  gravar no Firestore. Mantenha o JSON somente nas variáveis secretas do servidor.
+  Nunca envie essa credencial no chat nem a coloque no repositório.
+
+O endpoint `POST /api/register` cria a conta no Firebase Auth e seu documento
+`users/{uid}` usando o Admin SDK. A chave não é enviada ao bundle do navegador.
+As regras existentes continuam impedindo escrita direta de perfis pelo cliente.
+Há limite persistente de 10 tentativas por IP em 15 minutos em
+`_registrationLimits` (coleção privada; o campo `expiresAt` usa milissegundos).
+Uma falha ao criar o perfil desfaz a conta de autenticação recém-criada.
+Cadastros não alteram contas existentes nem promovem alunos existentes.
+
+Sem as credenciais do servidor, o cadastro fica indisponível; sem a chave,
+apenas o cadastro de gestores fica indisponível. O login existente continua funcionando.
+Para testar a função localmente, use `vercel dev` na raiz com as variáveis locais;
+`vite` sozinho não serve `/api/register`. Execute `npm test` na raiz para testar
+a autorização do cadastro com serviços simulados.

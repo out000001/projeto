@@ -94,8 +94,9 @@ export default function PublicLanding({ authenticated = false }) {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary-container to-tertiary-container p-8 text-on-primary shadow-xl md:p-12 lg:p-16">
+    <div className={`public-portal flex flex-col gap-8 ${authenticated ? "" : "mx-auto max-w-7xl px-5 py-6 md:px-8"}`}>
+      {!authenticated && <header className="public-header"><a href="/" className="public-wordmark">UNICAP<span>Extensão Comunitária</span></a><Button variant="outline" onClick={() => navigate("/")}>Entrar no portal <ArrowForward className="h-4 w-4" /></Button></header>}
+      <section className="public-hero relative overflow-hidden rounded-2xl bg-primary p-8 text-on-primary md:p-12 lg:p-16">
         <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-secondary-fixed/10 blur-3xl" />
         <div className="absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-tertiary-fixed/20 blur-2xl" />
         <div className="relative z-10 max-w-4xl">
@@ -120,7 +121,7 @@ export default function PublicLanding({ authenticated = false }) {
                 aria-label="Buscar projetos por palavra-chave"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 bg-transparent px-4 py-3 text-body-md text-on-surface outline-none placeholder:text-on-surface-variant/70"
+                className="min-w-0 flex-1 bg-transparent px-4 py-3 text-body-md text-on-surface outline-none placeholder:text-on-surface-variant/70"
                 placeholder="Busque por área, curso, bairro ou palavra-chave..."
               />
             </div>

@@ -35,15 +35,15 @@ export default function RegistrationForm({ onBack }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-center font-display text-3xl font-bold">Criar conta</h1>
+    <div className="auth-form flex flex-col gap-6">
+      <div className="auth-heading"><p className="auth-eyebrow text-primary">FAÇA PARTE</p><h1 className="font-display text-3xl font-bold">Criar conta</h1><p className="mt-3 text-on-surface-variant">Seu próximo projeto começa com uma conexão.</p></div>
       {success ? (
         <div className="flex flex-col gap-4 rounded-xl bg-surface-container-lowest p-6">
           <p role="status">Cadastro concluído! Entre com seu e-mail e senha para acessar o portal.</p>
           <Button onClick={onBack}>Ir para o login</Button>
         </div>
       ) : (
-        <form onSubmit={submit} className="flex flex-col gap-5 rounded-xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-sm">
+        <form onSubmit={submit} className="auth-credentials flex flex-col gap-5">
           <fieldset disabled={loading} className="flex flex-col gap-5">
             <legend className="mb-3 font-semibold">Como você vai participar?</legend>
             <div className="flex flex-wrap gap-4">

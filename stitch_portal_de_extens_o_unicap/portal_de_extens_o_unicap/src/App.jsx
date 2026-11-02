@@ -45,9 +45,22 @@ function AuthPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
-      <LoginForm />
-    </div>
+    <main className="auth-shell">
+      <aside className="auth-story">
+        <a className="auth-brand" href="/public" aria-label="UNICAP — conhecer os projetos">UNICAP<span>Universidade Católica de Pernambuco</span></a>
+        <div className="auth-story-copy">
+          <span className="auth-eyebrow">CONHECIMENTO QUE TRANSFORMA</span>
+          <h2>A universidade<br />encontra a<br /><em>comunidade.</em></h2>
+          <p>Ideias que saem da sala de aula e fazem a diferença na vida das pessoas. Faça parte da extensão universitária.</p>
+          <a className="auth-explore" href="/public">Conheça os projetos <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 19 19 5M5 5h14v14" /></svg></a>
+        </div>
+        <div className="auth-story-footer"><span className="auth-seal" aria-hidden="true">U</span><span>Extensão Comunitária<br /><strong>Recife · Pernambuco</strong></span></div>
+      </aside>
+      <section className="auth-content" aria-label="Acesso ao portal">
+        <div className="auth-content-inner"><LoginForm /></div>
+        <p className="auth-footer">UNICAP · Divisão de Extensão · Conhecimento a serviço da vida</p>
+      </section>
+    </main>
   );
 }
 

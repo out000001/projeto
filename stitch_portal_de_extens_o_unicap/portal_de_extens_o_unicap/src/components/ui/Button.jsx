@@ -9,7 +9,7 @@ export default function Button({
   ...rest
 }) {
   const base =
-    "btn inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all";
+    "btn inline-flex items-center justify-center gap-2 rounded-lg font-semibold";
 
   const variants = {
     primary:

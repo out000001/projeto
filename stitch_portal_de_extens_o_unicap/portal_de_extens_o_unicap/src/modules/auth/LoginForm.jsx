@@ -58,13 +58,14 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="text-center">
+    <div className="auth-form flex flex-col gap-6">
+      <div className="auth-heading">
+        <p className="auth-eyebrow text-primary">BEM-VINDO À UNICAP</p>
         <h1 className="font-display text-3xl font-bold tracking-tight text-on-surface">
           Portal de Extensão Comunitária
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-body-md text-on-surface-variant">
-          Identificação preliminar de segurança. Selecione seu perfil de vínculo institucional para carregar as permissões e telas exclusivas autorizadas.
+          Entre na sua conta para acompanhar projetos, participar de ações e conectar pessoas.
         </p>
       </div>
 
@@ -73,8 +74,9 @@ export default function LoginForm() {
           <button
             key={item.id}
             type="button"
+            aria-pressed={profile === item.id}
             onClick={() => setProfile(item.id)}
-            className={`flex cursor-pointer flex-col gap-3 rounded-xl border-2 p-5 text-left transition-colors ${
+            className={`profile-choice flex cursor-pointer flex-col gap-3 rounded-xl border-2 p-5 text-left ${
               profile === item.id
                 ? "border-primary bg-surface-container-lowest shadow-sm"
                 : "border-transparent hover:bg-surface-container-lowest/60"
@@ -101,14 +103,14 @@ export default function LoginForm() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="auth-credentials flex flex-col gap-5">
         <div className="flex items-center gap-2">
           <Lock className="h-4 w-4 text-primary" />
           <span className="font-label-md font-semibold text-on-surface">Credenciais de Acesso</span>
         </div>
 
         {(formError || error) && (
-          <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          <div role="alert" className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
             <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
             {formError || error}
           </div>
@@ -116,6 +118,8 @@ export default function LoginForm() {
 
         <Input
           label="Login Institucional (e-mail)"
+          type="email"
+          autoComplete="email"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
           placeholder="Ex: prof.sobrenome@unicap.br"
@@ -138,17 +142,20 @@ export default function LoginForm() {
           <div className="relative">
             <input
               id="password"
+              autoComplete="current-password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-11 w-full rounded-lg border border-surface-container-highest bg-surface-container-low px-10 pr-11 text-body-md text-on-surface placeholder:text-on-surface-variant/70 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary-container"
+              className="h-11 w-full rounded-lg border border-surface-container-highest bg-surface-container-low px-10 pr-11 text-body-md text-on-surface placeholder:text-on-surface-variant/70 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary-container"
               placeholder="••••••••••••"
               required
             />
             <button
               type="button"
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              aria-pressed={showPassword}
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors"
+              className="absolute right-1 top-1/2 flex h-11 w-11 items-center justify-center -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors"
             >
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>

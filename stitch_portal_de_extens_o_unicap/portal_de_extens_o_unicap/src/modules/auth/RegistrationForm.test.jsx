@@ -27,7 +27,7 @@ it("registers a student without a manager code and offers login", async () => {
   expect(onBack).toHaveBeenCalledOnce();
 });
 it("sends the manager key to the server and displays rejection without granting access", async () => {
-  const fetchMock = vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: "Chave de gestor inválida." }) });
+  const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 403, json: async () => ({ error: "Chave de gestor inválida." }) });
   vi.stubGlobal("fetch", fetchMock);
   const user = userEvent.setup();
   render(<RegistrationForm onBack={() => {}} />);
@@ -35,9 +35,11 @@ it("sends the manager key to the server and displays rejection without granting 
   await fill(user);
   await user.type(screen.getByLabelText("Chave de cadastro de gestor"), "incorrect-key");
   await user.click(screen.getByRole("button", { name: "Criar conta" }));
-  expect(await screen.findByRole("alert")).toHaveTextContent("Chave de gestor inválida.");
+  expect(await screen.findByText("Chave inválida. Confira com a coordenação e tente novamente.")).toBeInTheDocument();
+  expect(screen.getByLabelText("Chave de cadastro de gestor")).toHaveAttribute("aria-invalid", "true");
+  expect(screen.getByLabelText("Chave de cadastro de gestor")).toHaveFocus();
   expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({ profile: "gestor", managerCode: "incorrect-key" });
-  expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  expect(screen.getByRole("status")).toBeEmptyDOMElement();
 });
 it("blocks mismatched passwords before sending a request", async () => {
   const fetchMock = vi.fn();
@@ -46,6 +48,8 @@ it("blocks mismatched passwords before sending a request", async () => {
   render(<RegistrationForm onBack={() => {}} />);
   await fill(user, "different-password");
   await user.click(screen.getByRole("button", { name: "Criar conta" }));
-  expect(screen.getByRole("alert")).toHaveTextContent("As senhas não coincidem");
+  expect(screen.getByText(/As senhas não coincidem/)).toBeInTheDocument();
+  expect(screen.getByLabelText("Confirmar senha")).toHaveAttribute("aria-invalid", "true");
+  expect(screen.getByLabelText("Confirmar senha")).toHaveFocus();
   expect(fetchMock).not.toHaveBeenCalled();
 });

@@ -118,3 +118,38 @@ button, a { touch-action: manipulation; }
   .public-wordmark span { display: none; }
   .public-header .btn { font-size: 12px; }
 }
+
+/* Jakub Krehel: reading comfort, form feedback and narrow-screen reflow. */
+.auth-heading h1 { letter-spacing: -.02em; }
+.auth-brand span, .auth-story-footer, .auth-footer, .auth-eyebrow { font-size: .75rem; }
+.auth-story-footer strong { color: #e3cbd0; }
+.auth-heading > p:last-child, .auth-story-copy p { text-wrap: pretty; }
+.auth-form :where(p, label, legend) { overflow-wrap: break-word; }
+.auth-form .profile-choice p { font-size: .8125rem; line-height: 1.5; }
+.auth-form .profile-choice .font-label-lg { font-size: .875rem; }
+.auth-form .profile-choice > div:last-child { gap: 8px; }
+.registration-required { margin-top: -8px; font-size: .8125rem; color: var(--color-on-surface-variant); }
+.registration-profiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.auth-form fieldset .registration-profiles label { padding: 14px 12px; border: 1px solid var(--color-surface-container-highest); border-radius: var(--radius-lg); min-height: 64px; line-height: 1.4; }
+.registration-profiles label.selected { background: white; border-color: var(--color-primary-container); box-shadow: inset 0 0 0 1px var(--color-primary-container); }
+.registration-profiles input { flex-shrink: 0; }
+.registration-status:empty { margin: 0; height: 0; }
+.registration-status:not(:empty) { padding: 16px; border-radius: var(--radius-lg); background: var(--color-surface-container-low); font-size: .9375rem; line-height: 1.6; }
+.auth-form:has(.registration-status:empty) { row-gap: 16px; }
+.auth-form [aria-invalid='true'] { border-color: var(--color-error) !important; }
+.btn[aria-disabled='true'] { opacity: .65; cursor: wait; }
+.auth-story :where(a):focus-visible { outline-color: #fffaf3; }
+.auth-heading h1:focus { outline: none; }
+a { text-underline-position: from-font; text-decoration-thickness: from-font; }
+p { text-wrap: pretty; }
+@media (max-width: 640px) {
+  .auth-form :where(input:not([type='radio']):not([type='checkbox']), select, textarea) { font-size: 1rem; }
+}
+@media (max-width: 360px) {
+  .registration-profiles { grid-template-columns: 1fr; }
+  .auth-content { padding-inline: 16px; }
+}
+@media (forced-colors: active) {
+  :where(button, a, input, select, textarea):focus-visible { outline: 2px solid Highlight; }
+  .registration-profiles label.selected { border: 2px solid Highlight; }
+}

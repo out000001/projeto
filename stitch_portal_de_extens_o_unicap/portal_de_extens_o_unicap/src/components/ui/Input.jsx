@@ -1,3 +1,4 @@
+import { useId } from "react";
 import PropTypes from "prop-types";
 
 export default function Input({
@@ -6,9 +7,13 @@ export default function Input({
   hint,
   className = "",
   id,
+  "aria-describedby": describedBy,
   ...rest
 }) {
-  const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
+  const generatedId = useId();
+  const inputId = id || `field-${generatedId}`;
+  const messageId = `${inputId}-description`;
+  const description = [describedBy, (error || hint) ? messageId : null].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
@@ -22,14 +27,17 @@ export default function Input({
       )}
       <input
         id={inputId}
+        name={inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={description}
         className={`input ${error ? "border-error focus:ring-error" : ""}`}
         {...rest}
       />
       {error && (
-        <span className="font-body-sm text-error text-sm">{error}</span>
+        <span id={messageId} className="font-body-sm text-error text-sm">{error}</span>
       )}
       {hint && !error && (
-        <span className="font-body-sm text-on-surface-variant">{hint}</span>
+        <span id={messageId} className="font-body-sm text-on-surface-variant">{hint}</span>
       )}
     </div>
   );
@@ -40,5 +48,6 @@ Input.propTypes = {
   error: PropTypes.node,
   hint: PropTypes.node,
   className: PropTypes.string,
-  id: PropTypes.string
+  id: PropTypes.string,
+  "aria-describedby": PropTypes.string
 };

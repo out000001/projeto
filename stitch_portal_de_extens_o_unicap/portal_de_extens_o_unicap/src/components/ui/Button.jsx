@@ -13,7 +13,7 @@ export default function Button({
 
   const variants = {
     primary:
-      "bg-primary-container text-on-primary hover:bg-primary shadow-sm",
+      "bg-primary-container text-on-primary hover:bg-primary shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]",
     secondary:
       "bg-transparent border border-secondary text-secondary hover:bg-surface-container-lowest",
     outline:
@@ -21,7 +21,7 @@ export default function Button({
     ghost:
       "bg-transparent text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface",
     danger:
-      "bg-error text-on-error hover:bg-error/90 shadow-sm"
+      "bg-error text-on-error hover:bg-error/90 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]"
   };
 
   const sizes = {

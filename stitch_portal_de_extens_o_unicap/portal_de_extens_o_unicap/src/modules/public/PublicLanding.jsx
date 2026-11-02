@@ -96,25 +96,23 @@ export default function PublicLanding({ authenticated = false }) {
   return (
     <div className={`public-portal flex flex-col gap-8 ${authenticated ? "" : "mx-auto max-w-7xl px-5 py-6 md:px-8"}`}>
       {!authenticated && <header className="public-header"><a href="/" className="public-wordmark">UNICAP<span>Extensão Comunitária</span></a><Button variant="outline" onClick={() => navigate("/")}>Entrar no portal <ArrowForward className="h-4 w-4" /></Button></header>}
-      <section className="public-hero relative overflow-hidden rounded-2xl bg-primary p-8 text-on-primary md:p-12 lg:p-16">
-        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-secondary-fixed/10 blur-3xl" />
-        <div className="absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-tertiary-fixed/20 blur-2xl" />
+      <section className="public-hero relative overflow-hidden rounded-2xl bg-surface-container-low p-8 text-on-surface md:p-12 lg:p-16">
         <div className="relative z-10 max-w-4xl">
-          <div className="mb-4 flex items-center gap-2 rounded-full bg-surface-container-lowest/15 px-3 py-1 text-sm font-semibold uppercase tracking-wider text-tertiary-fixed backdrop-blur-sm">
+          <div className="mb-4 flex items-center gap-2 rounded-full text-sm font-semibold uppercase tracking-wider text-primary">
             <span className="material-symbols-outlined text-sm">volunteer_activism</span>
             Transformação Social • Recife e RMR
           </div>
           <h1 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl lg:text-5xl">
             Conectando a UNICAP à Comunidade: Participe de Nossos Projetos de Extensão
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-surface-container-low/90">
+          <p className="mt-4 max-w-2xl text-lg text-on-surface-variant">
             A extensão universitária é a ponte viva que une conhecimento científico, vocação humanista e
             cidadania participativa. Descubra bolsas ativas, cursos gratuitos e ações de impacto real nos
             territórios de Pernambuco.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <div className="flex flex-1 items-center gap-3 rounded-2xl bg-surface-container-lowest p-1 shadow-lg">
+            <div className="flex flex-1 items-center gap-3 rounded-2xl bg-surface-container-lowest p-1 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
               <Search className="h-5 w-5 flex-shrink-0 text-primary" />
               <input
                 type="search"
@@ -141,15 +139,15 @@ export default function PublicLanding({ authenticated = false }) {
             )}
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-4 text-sm font-medium text-surface-container-low">
+          <div className="mt-6 flex flex-wrap gap-4 text-sm font-medium text-on-surface-variant">
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-tertiary-fixed" />+130 Projetos em andamento
+              <span className="h-2 w-2 rounded-full bg-tertiary-fixed" />{projectsLoading ? "Carregando catálogo…" : projectsError ? "Catálogo temporariamente indisponível" : `${projects.length} projetos no catálogo`}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-secondary-fixed" />Creditação curricular garantida (ACCs)
+              <span className="h-2 w-2 rounded-full bg-secondary-fixed" />Consulte a carga horária de cada projeto
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-tertiary-fixed" />Serviços 100% gratuitos à população
+              <span className="h-2 w-2 rounded-full bg-tertiary-fixed" />Atividades para estudantes e comunidade
             </span>
           </div>
         </div>
@@ -337,7 +335,7 @@ export default function PublicLanding({ authenticated = false }) {
               Acesso Seguro e Transparente
             </span>
             <span className="text-body-md text-on-surface">
-              Ambiente institucional protegido em conformidade com a LGPD e autenticação federada CAFe/RNP.
+              Acesso por e-mail e senha. As permissões de gestão são definidas pelo perfil cadastrado.
             </span>
           </div>
         </div>

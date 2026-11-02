@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 import Badge from "../../../components/ui/Badge";
 import Button from "../../../components/ui/Button";
@@ -17,17 +18,20 @@ function modalityBadgeType(modality) {
 }
 
 export default function ProjectCard({ project, onViewDetails, onEnroll }) {
+  const [failedImage, setFailedImage] = useState(null);
+  const hasImage = typeof project.imageUrl === "string" && /^https:\/\//.test(project.imageUrl) && failedImage !== project.imageUrl;
   const isClosed = project.spotsLeft === 0;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-xl">
-      <div className="relative h-44 overflow-hidden bg-surface-container-high">
-        <img
-          src={`https://picsum.photos/seed/${project.id}/640/360`}
-          alt={`Imagem do projeto ${project.title}`}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+    <article className="project-card group flex flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),0px_12px_12px_-6px_rgba(0,0,0,0.06),0px_24px_24px_-12px_rgba(0,0,0,0.06)]">
+      <div className="project-card-cover relative overflow-hidden bg-surface-container-low">
+        {hasImage ? <img
+          src={project.imageUrl}
+          alt={project.imageAlt || ""}
+          className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
-        />
+          onError={() => setFailedImage(project.imageUrl)}
+        /> : <div className="project-cover-label"><School className="h-5 w-5" /><span>{project.area || "Extensão universitária"}</span></div>}
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           <Badge type={modalityBadgeType(project.modality)} label={project.modality} withDot={false} />
           {project.featured && (
@@ -74,7 +78,7 @@ export default function ProjectCard({ project, onViewDetails, onEnroll }) {
           </span>
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+        <div className="project-card-actions mt-auto flex items-center justify-between gap-3 pt-2">
           <span
             className={`text-sm font-semibold ${
               isClosed ? "text-on-surface-variant" : project.spotsLeft < 5 ? "text-error" : "text-secondary"
@@ -105,6 +109,9 @@ ProjectCard.propTypes = {
   project: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     title: PropTypes.string.isRequired,
+    area: PropTypes.string,
+    imageUrl: PropTypes.string,
+    imageAlt: PropTypes.string,
     shortDesc: PropTypes.string.isRequired,
     modality: PropTypes.string.isRequired,
     hours: PropTypes.string.isRequired,

@@ -27,7 +27,7 @@
   }
 
   .card {
-    @apply bg-surface-container-lowest rounded-xl border border-surface-container-high shadow-sm;
+    @apply bg-surface-container-lowest rounded-xl border border-surface-container-high;
   }
 
   .input {
@@ -55,7 +55,7 @@ button, a { touch-action: manipulation; }
 .btn:active:not(:disabled):not(:focus-visible) { transform: scale(.97); }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
 .input { background: white; opacity: 1; }
-.card { box-shadow: 0 2px 3px #26272503, 0 8px 24px #26272504; }
+
 .auth-shell { display: grid; grid-template-columns: minmax(340px, .95fr) minmax(480px, 1.05fr); min-height: 100svh; }
 .auth-story { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 60px; padding: clamp(32px, 4vw, 72px); color: #fffaf3; background: #5b0114; }
 .auth-story::after { content: ''; position: absolute; width: 520px; height: 520px; border: 1px solid #ffffff16; border-radius: 50%; bottom: -320px; right: -240px; box-shadow: 0 0 0 70px #ffffff05, 0 0 0 140px #ffffff04; pointer-events: none; }
@@ -152,4 +152,22 @@ p { text-wrap: pretty; }
 @media (forced-colors: active) {
   :where(button, a, input, select, textarea):focus-visible { outline: 2px solid Highlight; }
   .registration-profiles label.selected { border: 2px solid Highlight; }
+}
+
+/* MengTo: warm surfaces, restrained elevation and project-specific content. */
+.public-hero { border: 1px solid var(--color-surface-container-highest); }
+.public-hero h1 { color: var(--color-primary); font-weight: 600; }
+.public-hero > .relative > div:first-child { padding: 0; background: transparent; }
+.public-hero input { min-height: 48px; }
+.project-card-cover { min-height: 150px; border-bottom: 1px solid var(--color-surface-container-high); }
+.project-cover-label { display: flex; align-items: center; gap: 10px; padding: 68px 20px 24px; max-width: 75%; color: var(--color-primary); font-size: .875rem; font-weight: 600; line-height: 1.5; }
+.project-card h2 { line-height: 1.4; }
+.project-card-actions { flex-wrap: wrap; }
+.project-card-actions > div { margin-left: auto; }
+@media (max-width: 640px) {
+  .public-hero { padding: 28px 20px; }
+  .public-hero h1 { font-size: 1.875rem; }
+  .public-hero input { font-size: 1rem; }
+  .project-card-actions > div { width: 100%; margin-left: 0; }
+  .project-card-actions > div .btn { flex: 1; }
 }

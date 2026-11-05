@@ -45,10 +45,13 @@ try {
  assert.equal((await view('student')).tracking.participants.length,1);
  assert.equal((await change('homologate',{month:'2026-11',participantIds:[studentId,otherId]})).code,400);
  assert.equal((await view()).tracking.frequency['2026-11'][studentId].status,'pending');
+ const planned=(await view('student')).tracking.reports.find(r=>r.status==='pending');assert.ok(planned);assert.deepEqual(planned.attachments,[]);
  const fileId='report-file-12345',bytes=Buffer.from('%PDF-1.4\nPrivate report');
  assert.equal((await request('projects','student','POST',{id,action:'upload',attachment:{id:fileId,part:0,data:bytes.toString('base64')}})).code,200);
- assert.equal((await change('report-submit',{label:'Relatório do aluno',period:'Novembro',detail:'Atividades realizadas em oficinas de cidadania.',attachments:[{id:fileId,name:'relatorio.pdf',type:'application/pdf',size:bytes.length,parts:1}]},'student')).code,200);
- const report=(await view()).tracking.reports.find(r=>r.submittedBy==='student');
+ assert.equal((await change('report-submit',{reportId:planned.id,label:'Relatório do aluno',period:'Novembro',detail:'Atividades realizadas em oficinas de cidadania.',attachments:[{id:fileId,name:'relatorio.pdf',type:'application/pdf',size:bytes.length,parts:1}]},'student')).code,200);
+ const report=(await view()).tracking.reports.find(r=>r.submittedBy==='student');assert.equal(report.id,planned.id);assert.equal((await view()).tracking.reports.length,1);
+ assert.equal((await change('report-submit',{reportId:report.id,label:'Tentativa de substituição',detail:'Outro estudante não pode substituir este relatório.',attachments:[]},'other')).code,403);
+ assert.equal((await view('other')).tracking.reports.length,0);
  assert.equal((await request('projects','student','POST',{id,action:'upload',attachment:{id:fileId,part:0,data:bytes.toString('base64')}})).code,409);
  assert.equal((await change('report-review',{reportId:report.id,status:'approved',comment:'Conferido.'})).code,200);
  assert.equal((await db.collection('submissions').doc(id).get()).data().pendingReports,(await view()).tracking.reports.filter(r=>['pending','changes_requested'].includes(r.status)).length);

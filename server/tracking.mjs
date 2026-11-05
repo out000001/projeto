@@ -15,7 +15,7 @@ export function trackingView(project,state,user,manager) {
   const own=state.participants.filter(p=>p.userId===user.uid);
   const ids=new Set(own.map(p=>p.id));
   return {project:{id:project.id,title:project.title,coordinator:project.coordinator,center:project.center,grant:project.grant,status:project.status,ods:project.submission?.ods||[],plan:project.submission?.timeline||'',activities:project.submission?.activities||''},
-    tracking:manager?state:{...state,memberIds:[],participants:own,frequency:Object.fromEntries(Object.entries(state.frequency).map(([month,entries])=>[month,Object.fromEntries(Object.entries(entries).filter(([id])=>ids.has(id)))])),reports:state.reports.filter(r=>r.submittedBy===user.uid)},canManage:manager};
+    tracking:manager?state:{...state,memberIds:[],participants:own,frequency:Object.fromEntries(Object.entries(state.frequency).map(([month,entries])=>[month,Object.fromEntries(Object.entries(entries).filter(([id])=>ids.has(id)))])),reports:state.reports.filter(r=>r.submittedBy===user.uid||(r.status==='pending'&&!r.submittedBy)).map(r=>r.submittedBy===user.uid?r:{id:r.id,label:r.label,period:r.period,dueDate:r.dueDate,status:'pending',detail:'',attachments:[],submittedBy:null})},canManage:manager};
 }
 export function createTrackingHandler({auth,db}) {
  return async(req,res)=>{
@@ -105,7 +105,8 @@ export function createTrackingHandler({auth,db}) {
      const old=body.reportId?next.reports.find(r=>r.id===body.reportId):null;
      if(body.reportId&&!old) throw fail(404,'Relatório não encontrado.');
      if(old?.status==='approved') throw fail(409,'O relatório já foi aprovado. Envie uma nova versão como outro relatório.');
-     if(!manager&&old&&old.submittedBy!==user.uid) throw fail(403,'Relatório não disponível para esta conta.');
+     if(!manager&&!current.participants.some(p=>p.userId===user.uid&&p.active)) throw fail(403,'Sua participação está inativa. Procure a gestão.');
+     if(!manager&&old&&old.submittedBy!==user.uid&&!(old.status==='pending'&&!old.submittedBy)) throw fail(403,'Relatório não disponível para esta conta.');
      if(typeof body.detail!=='string'||body.detail.length>30000||(body.detail.trim().length<20&&!attachments.length)) throw fail(400,'Descreva o relatório com pelo menos 20 caracteres ou anexe um documento.');
      if(next.reports.length>=100&&!old) throw fail(400,'Limite de 100 relatórios.');
      const value={id:old?.id||generatedId,label:text(body.label||old?.label,'Título do relatório'),period:typeof body.period==='string'?body.period.slice(0,100):'',dueDate:old?.dueDate||'',detail:body.detail.trim(),attachments,status:'received',submittedBy:user.uid,submittedName:profile?.name||user.email,submittedAt:now,reviewComment:''};

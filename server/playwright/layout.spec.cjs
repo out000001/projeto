@@ -1,0 +1,6 @@
+const {test,expect}=require('../../stitch_portal_de_extens_o_unicap/portal_de_extens_o_unicap/node_modules/@playwright/test');const {execFile}=require('node:child_process');const {promisify}=require('node:util');const fs=require('node:fs/promises');const path=require('node:path');
+const run=promisify(execFile);
+test('25 · Navegador: 125 cenários de layout, sessão inativa e regressão de dados',async({},info)=>{
+ test.setTimeout(180000);const root=path.resolve(__dirname,'../..');await run(process.execPath,['server/workflows.browser.mjs'],{cwd:root,env:{...process.env,PORTAL_LAYOUT_AUDIT:'1'},timeout:150000,maxBuffer:1024*1024});await run(process.execPath,['server/layout-public.browser.mjs'],{cwd:root,env:process.env,timeout:60000,maxBuffer:1024*1024});
+ const data=JSON.parse(await fs.readFile('/tmp/portal-layout-audit/results.json','utf8'));const auth=JSON.parse(await fs.readFile('/tmp/portal-layout-audit/public-results.json','utf8'));const rows=[...data,...auth];expect(rows).toHaveLength(125);expect(rows.filter(row=>row.overflow||row.overflowing.length||row.hiddenControls.length||row.clipped.length||row.narrow.length)).toEqual([]);await fs.writeFile('reports/playwright/layout-results.json',JSON.stringify(rows,null,2));await info.attach('matriz-responsividade',{path:'reports/playwright/layout-results.json',contentType:'application/json'});
+});

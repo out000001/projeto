@@ -1,4 +1,4 @@
-import {render,screen,waitFor} from '@testing-library/react';
+import {render,screen,waitFor,fireEvent} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {MemoryRouter} from 'react-router-dom';
 import {beforeEach,it,expect,vi} from 'vitest';
@@ -27,3 +27,9 @@ it('lets a student submit against the planned delivery id',async()=>{state.data.
 
 it('returns to the catalogue and opens quick project search',async()=>{const user=userEvent.setup();view();await user.click(screen.getByRole('button',{name:'Trocar projeto',exact:true}));expect(screen.getByLabelText('Buscar projeto')).toHaveFocus();await user.click(screen.getByRole('button',{name:'Abrir acompanhamento de Projeto salvo no banco'}));expect(state.setId).toHaveBeenCalledWith('tracking-project');await user.click(screen.getByRole('button',{name:'Todos os projetos'}));expect(state.setId).toHaveBeenCalledWith('');});
 it('selects all saved eligible frequency records for bulk approval',async()=>{const user=userEvent.setup();view();await user.click(screen.getByRole('checkbox',{name:'Selecionar todas as frequências elegíveis'}));await user.click(screen.getByRole('button',{name:'Homologar selecionados (1)'}));expect(state.action).toHaveBeenCalledWith({action:'homologate',month,participantIds:['participant-1']});});
+
+it('keeps setup expanded until the complete configuration has been saved',async()=>{
+ state.data.tracking.config={startDate:'',endDate:'',totalHours:0,monthlyHours:0,beneficiaries:0};const user=userEvent.setup();view();await user.click(screen.getByRole('button',{name:'Configurar acompanhamento'}));
+ for(const [label,value] of [['Início da vigência','2026-01-01'],['Fim da vigência','2028-12-31'],['Carga horária total','120'],['Carga horária mensal','30']]){const field=screen.getByLabelText(label);fireEvent.change(field,{target:{value}});}
+ expect(screen.getByLabelText('Beneficiários atendidos')).toBeVisible();expect(screen.getByRole('button',{name:'Salvar vigência e metas'})).toBeVisible();
+});

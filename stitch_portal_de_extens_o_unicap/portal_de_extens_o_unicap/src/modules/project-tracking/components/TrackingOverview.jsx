@@ -8,7 +8,7 @@ import {participantHours, trackingMonths, frequencySummary, currentMonth, validM
 
 export default function TrackingOverview({tracking,canManage,busy,onAction}) {
   const [config,setConfig] = useState({...tracking.config});
-  const configured = Boolean(config.startDate && config.endDate && config.totalHours && config.monthlyHours);
+  const configured = Boolean(tracking.config.startDate && tracking.config.endDate && tracking.config.totalHours && tracking.config.monthlyHours);
   const lastMonth = validMonth(currentMonth(),tracking.config);
   const months = trackingMonths(tracking).filter(month=>month<=lastMonth).slice(-6);
   return <div className="flex flex-col gap-6">

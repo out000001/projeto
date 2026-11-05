@@ -123,7 +123,7 @@ export default function PublicLanding({ authenticated = false }) {
       <section className="public-hero relative overflow-hidden rounded-2xl bg-surface-container-low p-8 text-on-surface md:p-12 lg:p-16">
         <div className="relative z-10 max-w-4xl">
           <div className="mb-4 flex items-center gap-2 rounded-full text-sm font-semibold uppercase tracking-wider text-primary">
-            <span className="material-symbols-outlined text-sm">volunteer_activism</span>
+            <CheckCircle className="h-4 w-4 shrink-0" />
             Transformação Social • Recife e RMR
           </div>
           <h1 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl lg:text-5xl">
@@ -135,8 +135,8 @@ export default function PublicLanding({ authenticated = false }) {
             territórios de Pernambuco.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <div className="flex flex-1 items-center gap-3 rounded-2xl bg-surface-container-lowest p-1 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+          <div className="mt-6 flex flex-col gap-3 xl:flex-row xl:flex-wrap">
+            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl bg-surface-container-lowest p-1 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
               <Search className="h-5 w-5 flex-shrink-0 text-primary" />
               <input
                 type="search"
@@ -218,7 +218,7 @@ export default function PublicLanding({ authenticated = false }) {
 
           {!projectsLoading && !projectsError && (
           <>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
             <div>
               <h2 className="font-headline-md font-semibold text-on-surface">Oportunidades Disponíveis</h2>
               <p className="mt-1 text-body-md text-on-surface-variant">

@@ -1,6 +1,9 @@
 import PropTypes from "prop-types";
+import {Building,FileText,School,Calendar,Person} from "../../../components/ui/Icons";
 import Input from "../../../components/ui/Input";
 import { centers, editais, modalities } from "../data/submissionOptions";
+
+const modalityIcons={programa:<Building className="h-5 w-5"/>,projeto:<FileText className="h-5 w-5"/>,curso:<School className="h-5 w-5"/>,evento:<Calendar className="h-5 w-5"/>,servico:<Person className="h-5 w-5"/>};
 
 export default function StepIdentificacao({ form, updateForm, errors }) {
   return (
@@ -85,7 +88,7 @@ export default function StepIdentificacao({ form, updateForm, errors }) {
                 onChange={() => updateForm({ modality: m.value })}
                 className="sr-only"
               />
-              <span className="material-symbols-outlined text-lg">{m.icon}</span>
+              <span aria-hidden="true">{modalityIcons[m.value]}</span>
               <span className="text-sm font-semibold">{m.label}</span>
             </label>
           ))}

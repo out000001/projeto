@@ -3,7 +3,7 @@ import { Check } from "../../../components/ui/Icons";
 
 export default function Stepper({ steps, currentStep, onStepClick }) {
   return (
-    <nav aria-label="Etapas da submissão" className="flex flex-col gap-1 rounded-lg bg-surface-container-lowest p-4 sm:flex-row sm:items-center">
+    <nav aria-label="Etapas da submissão" className="grid grid-cols-1 gap-3 rounded-lg bg-surface-container-lowest p-4 sm:grid-cols-3 xl:grid-cols-6">
       {steps.map((s, i) => {
         const isDone = i < currentStep;
         const isCurrent = i === currentStep;
@@ -15,7 +15,7 @@ export default function Stepper({ steps, currentStep, onStepClick }) {
             type="button"
             onClick={() => reachable && onStepClick(i)}
             aria-current={isCurrent ? "step" : undefined}
-            className={`relative flex flex-col items-center px-3 py-2 text-sm transition-colors sm:items-start sm:text-left ${
+            className={`relative flex min-w-0 flex-col items-center px-3 py-2 text-sm transition-colors sm:items-start sm:text-left ${
               isCurrent
                 ? "font-semibold text-primary"
                 : reachable

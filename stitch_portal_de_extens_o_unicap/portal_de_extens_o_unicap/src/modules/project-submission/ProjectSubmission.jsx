@@ -130,7 +130,7 @@ export default function ProjectSubmission() {
         <span className="text-label-sm text-on-surface-variant">Módulo Docente • DEG / PROPESP</span>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight text-on-surface">
             Submissão de Proposta de Extensão
@@ -166,12 +166,12 @@ export default function ProjectSubmission() {
         />
       </fieldset>
 
-        <div className="mt-6 flex items-center justify-between border-t border-surface-container-high pt-4">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-surface-container-high pt-4">
           <Button variant="outline" onClick={handleBack} disabled={sending || currentStep === 0} className="gap-2">
             <ArrowBack className="h-4 w-4" />
             Voltar
           </Button>
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
             <Button
               variant="ghost"
               onClick={clearDraft} disabled={sending}

@@ -53,3 +53,12 @@ it("blocks mismatched passwords before sending a request", async () => {
   expect(screen.getByLabelText("Confirmar senha")).toHaveFocus();
   expect(fetchMock).not.toHaveBeenCalled();
 });
+
+it("shows and hides both password fields independently without submitting or losing values", async()=>{
+  const request=vi.fn();vi.stubGlobal("fetch",request);const user=userEvent.setup();render(<RegistrationForm onBack={()=>{}}/>);await fill(user);
+  const password=screen.getByLabelText("Senha"),confirmation=screen.getByLabelText("Confirmar senha");
+  expect(password).toHaveAttribute("type","password");expect(confirmation).toHaveAttribute("type","password");
+  await user.click(screen.getByRole("button",{name:"Mostrar senha",exact:true}));expect(password).toHaveAttribute("type","text");expect(password).toHaveValue("password123");expect(confirmation).toHaveAttribute("type","password");
+  await user.click(screen.getByRole("button",{name:"Mostrar confirmação de senha"}));expect(confirmation).toHaveAttribute("type","text");expect(confirmation).toHaveValue("password123");
+  await user.click(screen.getByRole("button",{name:"Ocultar senha",exact:true}));await user.click(screen.getByRole("button",{name:"Ocultar confirmação de senha"}));expect(password).toHaveAttribute("type","password");expect(confirmation).toHaveAttribute("type","password");expect(request).not.toHaveBeenCalled();
+});

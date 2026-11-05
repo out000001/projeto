@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {mkdir} from 'node:fs/promises';
+import {auditLayout,verifyLayoutResults} from './layout-audit.mjs';
 import {createRequire} from 'node:module';
 import {initializeApp,deleteApp} from 'firebase-admin/app';
 import {getFirestore} from 'firebase-admin/firestore';
@@ -57,6 +58,23 @@ try {
  await manager.getByRole('button',{name:'Frequência',exact:true}).click();assert.equal(await manager.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await manager.getByRole('button',{name:'Relatórios e pareceres',exact:true}).click();assert.equal(await manager.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await manager.goto('http://127.0.0.1:5173/dashboard');await manager.getByRole('heading',{name:'Associação comunitária real'}).waitFor();
+ if(process.env.PORTAL_LAYOUT_AUDIT==='1') {
+  const results=[];
+  await auditLayout(manager,'dashboard',results);
+  await manager.goto('http://127.0.0.1:5173/tracking');await manager.getByLabel('Buscar projeto').waitFor();await auditLayout(manager,'project-list',results);
+  await manager.goto(`http://127.0.0.1:5173/tracking?id=${id}`);await manager.getByRole('button',{name:'Visão geral',exact:true}).click();await auditLayout(manager,'overview',results);
+  for(const [label,name] of [['Participantes','participants'],['Frequência','frequency'],['Cronograma e atividades','timeline'],['Relatórios e pareceres','reports']]){await manager.getByRole('button',{name:label,exact:true}).click();await auditLayout(manager,name,results);}
+  await manager.goto('http://127.0.0.1:5173/settings');await manager.getByLabel('Nome de exibição').waitFor();await auditLayout(manager,'settings',results);
+  await manager.getByRole('button',{name:'Ajuda',exact:true}).click();await auditLayout(manager,'help-dialog',results,{widths:[320,768,1440]});await manager.keyboard.press('Escape');
+  await manager.getByRole('button',{name:/Avisos/}).click();await auditLayout(manager,'notices-dialog',results,{widths:[320,768]});await manager.keyboard.press('Escape');
+  await manager.evaluate(value=>localStorage.setItem('unicap:submission-draft',JSON.stringify(value)),form);
+  await manager.goto('http://127.0.0.1:5173/submit');await manager.getByRole('heading',{level:1}).waitFor();await auditLayout(manager,'submission',results);
+  for(let step=2;step<=6;step++){await manager.getByRole('button',{name:'Continuar',exact:true}).click();await auditLayout(manager,`submission-step-${step}`,results,{widths:[320,768,1440]});}
+  await manager.goto('http://127.0.0.1:5173/public');await manager.getByRole('heading',{name:/Conectando a UNICAP/}).waitFor();await auditLayout(manager,'public',results);
+  await manager.getByRole('button',{name:'Detalhes',exact:true}).first().click();await auditLayout(manager,'public-detail',results);await manager.keyboard.press('Escape');
+  verifyLayoutResults(results);
+  console.log('LAYOUT AUDIT written to /tmp/portal-layout-audit/results.json');
+ }
  assert.equal(await student.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await student.waitForFunction(()=>document.documentElement.dataset.density==='compacta');await student.clock.fastForward(15*60000+2000);await student.getByRole('button',{name:'Entrar no portal',exact:true}).waitFor();
  console.log('PASS browser + real API + Firestore: enrollment, linked personal tracking, participant names, hours saved after reload, homologation, private report upload/download/review, account settings/density, student route restriction, partnership inbox, idle logout.');

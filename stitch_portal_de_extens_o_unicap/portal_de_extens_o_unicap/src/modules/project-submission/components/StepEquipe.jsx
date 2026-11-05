@@ -1,13 +1,15 @@
 import PropTypes from "prop-types";
+import {School,User,Person} from "../../../components/ui/Icons";
 import Input from "../../../components/ui/Input";
 import { teamRoles } from "../data/submissionOptions";
 
 function Counter({ label, description, icon, value, onChange, error }) {
+  const Icon=({payments:School,group_add:User,diversity_1:Person})[icon]||Person;
   return (
     <div className="rounded-xl border border-surface-container-highest bg-surface-container-low p-4">
       <div className="flex items-center justify-between">
         <span className="font-label-md font-semibold text-on-surface">{label}</span>
-        <span className={`material-symbols-outlined ${error ? "text-error" : "text-primary"}`}>{icon}</span>
+        <Icon className={`h-5 w-5 shrink-0 ${error ? "text-error" : "text-primary"}`}/>
       </div>
       <p className="mt-1 text-sm text-on-surface-variant">{description}</p>
       <div className="mt-3 flex items-center gap-3">

@@ -1,5 +1,6 @@
 import { Component } from "react";
 import PropTypes from "prop-types";
+import {ErrorIcon} from "./Icons";
 import Button from "./Button";
 
 /**
@@ -31,9 +32,7 @@ export default class ErrorBoundary extends Component {
         role="alert"
         className="mx-auto mt-12 max-w-lg rounded-2xl border border-error-container bg-error-container/40 p-8 text-center"
       >
-        <span className="material-symbols-outlined text-4xl text-error" aria-hidden="true">
-          error
-        </span>
+        <ErrorIcon className="mx-auto h-9 w-9 text-error"/>
         <h2 className="mt-3 font-headline-md font-bold text-on-surface">
           Algo deu errado nesta área
         </h2>

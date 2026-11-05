@@ -69,7 +69,7 @@ export default function ProjectDetailModal({ project, onClose, onEnroll }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-surface-container-high p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-surface-container-high p-6">
         <span
           className={`text-sm font-semibold ${
             isClosed ? "text-on-surface-variant" : project.spotsLeft < 5 ? "text-error" : "text-secondary"
@@ -79,7 +79,7 @@ export default function ProjectDetailModal({ project, onClose, onEnroll }) {
             ? "Vagas esgotadas — cadastre-se na lista de espera"
             : `${project.spotsLeft} de ${project.spotsMax} vagas disponíveis`}
         </span>
-        <div className="flex flex-none items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <Button variant="outline" onClick={onClose}>
             Voltar
           </Button>

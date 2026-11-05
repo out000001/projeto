@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import Input from "../../components/ui/Input";
+import PasswordInput from "../../components/ui/PasswordInput";
 import Button from "../../components/ui/Button";
 
 export default function RegistrationForm({ onBack }) {
@@ -80,8 +81,8 @@ export default function RegistrationForm({ onBack }) {
             </div>
             <Input name="name" label="Nome completo" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} required />
             <Input name="email" spellCheck={false} label="E-mail" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={254} required />
-            <Input name="password" label="Senha" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} maxLength={128} hint="Use pelo menos 8 caracteres." required />
-            <Input name="confirmation" error={confirmationError} label="Confirmar senha" type="password" autoComplete="new-password" value={confirmation} onChange={(e) => { setConfirmation(e.target.value); setConfirmationError(""); }} minLength={8} maxLength={128} required />
+            <PasswordInput name="password" label="Senha" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} maxLength={128} hint="Use pelo menos 8 caracteres." required />
+            <PasswordInput visibilityLabel="confirmação de senha" name="confirmation" error={confirmationError} label="Confirmar senha" type="password" autoComplete="new-password" value={confirmation} onChange={(e) => { setConfirmation(e.target.value); setConfirmationError(""); }} minLength={8} maxLength={128} required />
             {profile === "gestor" && <Input name="managerCode" error={codeError} spellCheck={false} label="Chave de cadastro de gestor" type="password" autoComplete="off" value={code} onChange={(e) => { setCode(e.target.value); setCodeError(""); }} maxLength={256} hint="Solicite a chave à coordenação do portal." required />}
           </fieldset>
           {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-800">{error}</p>}

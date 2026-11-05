@@ -5,6 +5,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-block-start: var(--portal-header-height, 1rem);
   }
 
   body {
@@ -173,3 +174,7 @@ p { text-wrap: pretty; }
 }
 html[data-density='compacta'] .card { padding: 1rem; }
 html[data-density='compacta'] :where(td, th) { padding-block: .5rem; }
+
+/* Scroll the full dialog when content grows or the keyboard reduces the viewport. */
+.modal-panel { overflow-wrap: anywhere; }
+.modal-panel > * { flex-shrink: 0; }

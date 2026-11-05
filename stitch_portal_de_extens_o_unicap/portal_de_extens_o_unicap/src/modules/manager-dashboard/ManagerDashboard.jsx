@@ -135,7 +135,7 @@ export default function ManagerDashboard() {
                   : ""}
               </span>
               {paged.pageCount > 1 && (
-                <nav aria-label="Paginação de projetos" className="flex items-center gap-1">
+                <nav aria-label="Paginação de projetos" className="flex flex-wrap items-center gap-1">
                   <Button
                     variant="outline"
                     size="small"

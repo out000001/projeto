@@ -52,7 +52,7 @@ export default function Modal({
         aria-labelledby={titleId || undefined}
         aria-label={titleId ? undefined : title}
         tabIndex={-1}
-        className={`relative z-10 flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-2xl outline-none ${className}`}
+        className={`modal-panel relative z-10 flex min-w-0 max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto rounded-2xl bg-surface-container-lowest shadow-2xl outline-none ${className}`}
       >
         {showCloseButton && (
           <button

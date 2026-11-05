@@ -1,11 +1,11 @@
 import AccountRuntime from "./AccountRuntime";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useSession } from "../../contexts/SessionContext";
 import Button from "../ui/Button";
 import Modal from "../ui/Modal";
-import { Logout, Settings } from "../ui/Icons";
+import { Logout, Settings, Building, Calendar, Plus, School } from "../ui/Icons";
 
 function HelpIcon({ className = "h-4 w-4" }) {
   return (
@@ -20,20 +20,31 @@ HelpIcon.propTypes = {
 };
 
 const managerNav = [
-  { to: "/dashboard", label: "Painel Gestor", icon: "dashboard" },
-  { to: "/tracking", label: "Acompanhamento", icon: "monitoring" },
-  { to: "/submit", label: "Submeter Projeto", icon: "post_add" }
+  { to: "/dashboard", label: "Painel Gestor", icon: Building },
+  { to: "/tracking", label: "Acompanhamento", icon: Calendar },
+  { to: "/submit", label: "Submeter Projeto", icon: Plus }
 ];
 
 const communityNav = [
-  { to: "/public", label: "Vitrine Pública", icon: "public" },
-  { to: "/tracking", label: "Meu Acompanhamento", icon: "monitoring" }
+  { to: "/public", label: "Vitrine Pública", icon: School },
+  { to: "/tracking", label: "Meu Acompanhamento", icon: Calendar }
 ];
 
 export default function AppLayout({ children }) {
   const { profile, logout, error } = useSession();
   const navigate = useNavigate();
   const [helpOpen, setHelpOpen] = useState(false);
+  const headerRef=useRef(null);
+  useEffect(()=>{
+    const header=headerRef.current;
+    if(!header)return undefined;
+    const update=()=>document.documentElement.style.setProperty('--portal-header-height', `${header.getBoundingClientRect().height+12}px`);
+    update();
+    const resize=window.ResizeObserver?new window.ResizeObserver(update):null;
+    resize?.observe(header);
+    window.addEventListener('resize',update);
+    return()=>{resize?.disconnect();window.removeEventListener('resize',update);document.documentElement.style.removeProperty('--portal-header-height');};
+  },[]);
   const links = profile === "gestor" ? managerNav : communityNav;
 
   // Sair sempre encerra a sessão e devolve o usuário à tela de login.
@@ -43,7 +54,7 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-on-surface antialiased">
-      <header className="sticky top-0 z-40 border-b border-surface-container-high bg-surface-container-lowest/90 backdrop-blur-xl px-6 py-3 shadow-sm">
+      <header ref={headerRef} className="sticky top-0 z-40 border-b border-surface-container-high bg-surface-container-lowest/90 backdrop-blur-xl px-6 py-3 shadow-sm">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="font-display text-xl font-bold text-primary tracking-tight">UNICAP</span>
@@ -52,7 +63,7 @@ export default function AppLayout({ children }) {
             </span>
           </div>
 
-          <nav className="hidden items-center gap-1 sm:flex">
+          <nav className="hidden min-w-0 flex-wrap items-center gap-1 xl:flex">
             {links.map((link) => (
               <NavLink
                 key={link.to}
@@ -66,18 +77,17 @@ export default function AppLayout({ children }) {
                   }`
                 }
               >
-                <span className="material-symbols-outlined text-sm">
-                  {link.icon === "dashboard" ? "dashboard" : link.icon === "monitoring" ? "monitoring" : link.icon === "post_add" ? "post_add" : "public"}
-                </span>
+                <link.icon className="h-4 w-4 shrink-0" />
                 {link.label}
               </NavLink>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <AccountRuntime />
             <button
               type="button"
+              aria-label="Ajuda"
               onClick={() => setHelpOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-surface-container-high bg-surface-container px-3 py-2 text-label-sm text-on-surface-variant shadow-sm transition-colors hover:bg-surface-container-high hover:text-on-surface"
             >
@@ -86,19 +96,20 @@ export default function AppLayout({ children }) {
             </button>
             <Link
               to="/settings"
+              aria-label="Configurações"
               className="inline-flex items-center gap-2 rounded-lg border border-surface-container-high bg-surface-container px-3 py-2 text-label-sm text-on-surface-variant shadow-sm transition-colors hover:bg-surface-container-high hover:text-on-surface"
             >
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">Configurações</span>
             </Link>
-            <Button variant="ghost" onClick={handleLogout} className="gap-1">
+            <Button variant="ghost" aria-label="Sair" onClick={handleLogout} className="gap-1">
               <Logout className="h-4 w-4" />
               <span className="hidden sm:inline">Sair</span>
             </Button>
           </div>
         </div>
       </header>
-      <nav aria-label="Navegação no celular" className="flex gap-2 overflow-x-auto border-b border-surface-container-high px-4 py-2 sm:hidden">{links.map(link=><NavLink key={link.to} to={link.to} className={({isActive})=>`whitespace-nowrap rounded-lg px-3 py-3 text-sm ${isActive?"bg-primary text-on-primary":"text-on-surface"}`}>{link.label}</NavLink>)}</nav>
+      <nav aria-label="Navegação no celular" className="flex flex-wrap gap-2 border-b border-surface-container-high px-4 py-2 xl:hidden">{links.map(link=><NavLink key={link.to} to={link.to} className={({isActive})=>`min-w-0 rounded-lg px-3 py-3 text-sm ${isActive?"bg-primary text-on-primary":"text-on-surface"}`}>{link.label}</NavLink>)}</nav>
       {error && <p role="alert" className="mx-auto mt-4 max-w-4xl px-6 text-red-800">{error}</p>}
 
       <div className="flex flex-1 flex-col">

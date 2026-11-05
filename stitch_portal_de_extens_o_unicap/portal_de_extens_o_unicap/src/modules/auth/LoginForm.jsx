@@ -99,9 +99,7 @@ export default function LoginForm() {
           >
             <div className="flex items-center gap-3">
               <div className={`flex h-10 w-10 items-center justify-center rounded-lg shadow-sm ${item.color}`}>
-                <span className="material-symbols-outlined text-lg">
-                  {item.icon === Shield ? "shield_person" : "school"}
-                </span>
+                <item.icon className="h-5 w-5 shrink-0" />
               </div>
               <div className={`flex h-3 w-3 items-center justify-center rounded-full ${
                 profile === item.id ? "bg-primary ring-2 ring-primary/20" : "bg-surface-dim"

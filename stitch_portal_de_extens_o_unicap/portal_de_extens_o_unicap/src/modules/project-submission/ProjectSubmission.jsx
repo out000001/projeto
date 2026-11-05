@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { submitProject } from "../../services/projectApi";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { ArrowBack, ArrowForward, Save, CheckCircle } from "../../components/ui/Icons";
@@ -33,16 +34,23 @@ export default function ProjectSubmission() {
   const [attachmentError, setAttachmentError] = useState(null);
   const [submittedTitle, setSubmittedTitle] = useState(null);
 
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(null);
+  const submissionId = useRef(null);
+
   const stepId = steps[currentStep].id;
   const StepComponent = stepComponents[stepId];
   const isLast = currentStep === steps.length - 1;
 
   const goTo = (index) => {
+    if (sending) return;
     setStepErrors({});
     setCurrentStep(index);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (sending) return;
+    setSendError(null);
     const result = validateStep(stepId, form);
     if (!result.ok) {
       setStepErrors(result.errors);
@@ -54,9 +62,21 @@ export default function ProjectSubmission() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    // Envio (mock): em produção, POST para a API do portal.
-    setSubmittedTitle(form.title);
-    clearDraft();
+    for (let index = 0; index < steps.length; index++) {
+      const validation = validateStep(steps[index].id, form);
+      if (!validation.ok) { setCurrentStep(index); setStepErrors(validation.errors); return; }
+    }
+    if (form.attachmentsNeedReselection) { setSendError("Selecione novamente os anexos ou remova o aviso antes de enviar."); return; }
+    setSending(true);
+    try {
+      submissionId.current ||= form.submissionId || window.crypto.randomUUID();
+      updateForm({ submissionId: submissionId.current });
+      await submitProject(form, submissionId.current);
+      setSubmittedTitle(form.title);
+      clearDraft();
+      submissionId.current = null;
+    } catch (error) { setSendError(error.message); }
+    finally { setSending(false); }
   };
 
   const handleBack = () => {
@@ -79,7 +99,7 @@ export default function ProjectSubmission() {
         return;
       }
     }
-    updateForm({ attachments: [...attachments, ...files] });
+    updateForm({ attachments: [...attachments, ...files], attachmentsNeedReselection: false });
   };
 
   const handleRemoveAttachment = (index) => {
@@ -95,10 +115,9 @@ export default function ProjectSubmission() {
         <CheckCircle className="h-12 w-12 text-teal-700" />
         <h1 className="font-headline-lg font-semibold text-on-surface">Proposta enviada com sucesso!</h1>
         <p className="max-w-md text-body-md text-on-surface-variant">
-          A proposta <strong>{submittedTitle}</strong> foi registrada e encaminhada ao comitê de extensão para
-          análise. O acompanhamento de status estará disponível no módulo de Acompanhamento.
+          A proposta <strong>{submittedTitle}</strong> foi salva no banco de dados e está disponível no painel de gestão para análise. Ela só aparecerá na vitrine após a publicação por um gestor.
         </p>
-        <Button variant="secondary" onClick={() => setSubmittedTitle(null)} className="mt-2">
+        <Button variant="secondary" onClick={() => { setSubmittedTitle(null); setCurrentStep(0); }} className="mt-2">
           Criar nova proposta
         </Button>
       </div>
@@ -133,8 +152,11 @@ export default function ProjectSubmission() {
 
       <Stepper steps={steps} currentStep={currentStep} onStepClick={goTo} />
 
+      {sendError && <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-800">{sendError} O rascunho foi mantido.</p>}
+      {form.attachmentsNeedReselection && <p role="status" className="rounded-lg bg-amber-50 p-4 text-amber-900">Selecione novamente os anexos: arquivos não são preservados ao fechar o navegador. <Button variant="outline" onClick={() => updateForm({ attachments: [], attachmentsNeedReselection: false })}>Enviar sem esses anexos</Button></p>}
       <Card className="p-6">
-        <StepComponent
+        <fieldset disabled={sending}>
+      <StepComponent
           form={form}
           updateForm={updateForm}
           errors={stepErrors}
@@ -142,24 +164,25 @@ export default function ProjectSubmission() {
           onRemoveAttachment={handleRemoveAttachment}
           attachmentError={attachmentError}
         />
+      </fieldset>
 
         <div className="mt-6 flex items-center justify-between border-t border-surface-container-high pt-4">
-          <Button variant="outline" onClick={handleBack} disabled={currentStep === 0} className="gap-2">
+          <Button variant="outline" onClick={handleBack} disabled={sending || currentStep === 0} className="gap-2">
             <ArrowBack className="h-4 w-4" />
             Voltar
           </Button>
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
-              onClick={clearDraft}
+              onClick={clearDraft} disabled={sending}
               className="gap-2"
               title="Apaga o rascunho salvo e recomeça o formulário"
             >
               <Save className="h-4 w-4" />
               Limpar rascunho
             </Button>
-            <Button onClick={handleNext} className="gap-2">
-              {isLast ? "Enviar proposta" : "Continuar"}
+            <Button onClick={handleNext} disabled={sending} className="gap-2">
+              {sending ? "Salvando proposta e anexos…" : isLast ? "Enviar proposta" : "Continuar"}
               <ArrowForward className="h-4 w-4" />
             </Button>
           </div>

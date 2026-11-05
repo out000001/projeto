@@ -6,6 +6,10 @@
   "outputDirectory": "stitch_portal_de_extens_o_unicap/portal_de_extens_o_unicap/dist",
   "rewrites": [
     {
+      "source": "/api/projects",
+      "destination": "/api/projects"
+    },
+    {
       "source": "/api/register",
       "destination": "/api/register"
     },

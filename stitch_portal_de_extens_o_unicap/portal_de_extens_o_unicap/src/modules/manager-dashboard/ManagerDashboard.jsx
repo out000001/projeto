@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import { Download, Plus } from "../../components/ui/Icons";
 import { downloadTextFile } from "../../utils/download";
-import { dashboardProjects, filterOptions, semesterInfo } from "./data/dashboardData";
+import { filterOptions as defaultFilterOptions, semesterInfo } from "./data/dashboardData";
 import {
   filterProjects,
   sortProjects,
@@ -19,6 +19,9 @@ import CommitteeDeadlines from "./components/CommitteeDeadlines";
 import PendingActions from "./components/PendingActions";
 import ProjectDetailModal from "./components/ProjectDetailModal";
 
+import { fetchProjectDetails } from "../../services/projectApi";
+import useManagerProjects from "./useManagerProjects";
+
 const DEFAULT_FILTERS = {
   search: "",
   center: "all",
@@ -30,15 +33,25 @@ const DEFAULT_FILTERS = {
 /** Painel de gestão institucional da extensão comunitária. */
 export default function ManagerDashboard() {
   const navigate = useNavigate();
+  const { items: dashboardProjects, loading, error, reload } = useManagerProjects();
+  const filterOptions = { ...defaultFilterOptions, centers: [...new Set(dashboardProjects.map(p => p.center))], thematicLines: [...new Set(dashboardProjects.map(p => p.thematicLine))], grants: [...new Set(dashboardProjects.map(p => p.grant))] };
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sortBy, setSortBy] = useState("title");
   const [page, setPage] = useState(1);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [detailError,setDetailError] = useState(null);
+  const [detailLoading,setDetailLoading] = useState(false);
+  async function viewProject(project) {
+    setDetailError(null);setDetailLoading(true);
+    try { const {item}=await fetchProjectDetails(project.id);setSelectedProject(item); }
+    catch(error) {setDetailError(error.message);}
+    finally {setDetailLoading(false);}
+  }
 
-  const filtered = useMemo(() => filterProjects(dashboardProjects, filters), [filters]);
+  const filtered = useMemo(() => filterProjects(dashboardProjects, filters), [dashboardProjects, filters]);
   const sorted = useMemo(() => sortProjects(filtered, sortBy), [filtered, sortBy]);
   const paged = useMemo(() => paginate(sorted, page), [sorted, page]);
-  const deadlines = useMemo(() => buildDeadlines(), []);
+  const deadlines = useMemo(() => buildDeadlines([]), []);
 
   // Volta para a primeira página sempre que filtros ou ordenação mudam.
   const handleFilterChange = (next) => {
@@ -56,6 +69,11 @@ export default function ManagerDashboard() {
 
   return (
     <div className="flex flex-col gap-8">
+      {detailLoading && <p role="status">Carregando detalhes…</p>}
+      {detailError && <p role="alert" className="text-red-800">{detailError} Tente abrir o projeto novamente.</p>}
+      {loading && <p role="status">Carregando propostas salvas…</p>}
+      {error && <div role="alert" className="rounded-lg bg-red-50 p-4 text-red-800">{error} <Button onClick={reload}>Tentar novamente</Button></div>}
+      {!loading && !error && dashboardProjects.length === 0 && <p role="status">Nenhuma proposta salva ainda. Use “Novo Projeto” para cadastrar a primeira.</p>}
       <section>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -105,7 +123,7 @@ export default function ManagerDashboard() {
               projects={paged.items}
               sortBy={sortBy}
               onSortChange={handleSortChange}
-              onViewDetails={setSelectedProject}
+              onViewDetails={viewProject}
             />
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-on-surface-variant">
@@ -165,6 +183,7 @@ export default function ManagerDashboard() {
         <ProjectDetailModal
           project={selectedProject}
           onClose={() => setSelectedProject(null)}
+          onChanged={() => { setSelectedProject(null); reload(); }}
         />
       )}
     </div>

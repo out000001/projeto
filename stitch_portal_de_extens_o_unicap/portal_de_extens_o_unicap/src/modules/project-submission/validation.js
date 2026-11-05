@@ -1,4 +1,4 @@
-import { annexRules } from "./data/submissionOptions";
+import { annexRules } from "./data/submissionOptions.js";
 
 // Validações puras do fluxo de submissão — sem React, para testes de unidade diretos.
 

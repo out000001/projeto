@@ -1,3 +1,4 @@
+import ProjectPublication from "./ProjectPublication";
 import PropTypes from "prop-types";
 import Modal from "../../../components/ui/Modal";
 import Badge from "../../../components/ui/Badge";
@@ -5,7 +6,7 @@ import { executionRate } from "../dashboardLogic";
 import { formatCurrency } from "../../../utils/format";
 
 /** Modal com a ficha completa do projeto para o gestor. */
-export default function ProjectDetailModal({ project, onClose }) {
+export default function ProjectDetailModal({ project, onClose, onChanged = () => {} }) {
   if (!project) return null;
   const rate = executionRate(project);
 
@@ -78,12 +79,14 @@ export default function ProjectDetailModal({ project, onClose }) {
             </div>
           )}
         </dl>
+        <ProjectPublication project={project} onChanged={onChanged} />
       </div>
     </Modal>
   );
 }
 
 ProjectDetailModal.propTypes = {
+  onChanged: PropTypes.func,
   project: PropTypes.shape({
     id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,

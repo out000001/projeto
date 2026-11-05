@@ -5,7 +5,9 @@ const DRAFT_KEY = "unicap:submission-draft";
 function readDraft() {
   try {
     const raw = window.localStorage.getItem(DRAFT_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const draft = JSON.parse(raw);
+    return { ...draft, attachments: [], attachmentsNeedReselection: Boolean(draft.attachments?.length || draft.attachmentsNeedReselection) };
   } catch {
     return null;
   }

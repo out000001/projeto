@@ -1,8 +1,11 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach } from "vitest";
+import { beforeEach, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
+import { submitProject } from "../../services/projectApi";
 import ProjectSubmission from "./ProjectSubmission";
+
+vi.mock("../../services/projectApi", () => ({ submitProject: vi.fn().mockResolvedValue({ id: "saved-project", ok: true }) }));
 
 // O rascunho vive no localStorage: limpa antes de cada teste para evitar vazamento de estado.
 beforeEach(() => {
@@ -141,6 +144,17 @@ describe("Sprint 3 — submissão de projeto", () => {
 
     expect(screen.getByText(/proposta enviada com sucesso/i)).toBeInTheDocument();
     expect(screen.getByText(/Cidadania Digital e Letramento Midiático/i)).toBeInTheDocument();
+  });
+
+  it("mantém o rascunho quando o servidor não confirma o salvamento", async () => {
+    vi.mocked(submitProject).mockRejectedValueOnce(new Error("Não foi possível salvar. Tente novamente."));
+    const user = userEvent.setup();
+    renderSubmission();
+    await completeAllSteps(user);
+    await user.click(screen.getByRole("button", { name: /enviar proposta/i }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("O rascunho foi mantido");
+    expect(screen.queryByText(/proposta enviada com sucesso/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /enviar proposta/i })).toBeEnabled();
   });
 
   it("bloqueia envio final sem checklist de conformidade completo", async () => {

@@ -41,6 +41,7 @@ export default function CommitteeDeadlines({ deadlines }) {
         <span className="text-label-sm font-bold text-primary">Comitê DEG</span>
       </div>
 
+      {deadlines.length === 0 && <p className="text-sm text-on-surface-variant">Nenhum prazo cadastrado.</p>}
       <ul className="space-y-3">
         {deadlines.map((deadline) => {
           const style = urgencyStyles[deadline.urgency];

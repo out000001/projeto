@@ -7,6 +7,8 @@ import { resetApiMock } from "./services/apiMock";
 
 // UI tests use a contract double; Firebase SDK and rules have separate tests.
 // These demo credentials exist only in the test double and legacy SQLite API.
+vi.mock("./modules/manager-dashboard/useManagerProjects", () => ({ default: () => ({ items: [], loading: false, error: null, reload: vi.fn() }) }));
+
 vi.mock("./services/api", () => import("./services/apiMock"));
 
 const GESTOR = { identifier: "ana.souza@unicap.br", password: "gestor123" };

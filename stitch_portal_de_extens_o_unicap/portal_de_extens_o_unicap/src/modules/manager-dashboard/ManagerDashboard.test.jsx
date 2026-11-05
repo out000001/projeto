@@ -3,8 +3,12 @@ import { render, screen, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import ManagerDashboard from "./ManagerDashboard";
-import { dashboardProjects, committeeDeadlines } from "./data/dashboardData";
-import { PAGE_SIZE, buildDeadlines, computeKpis } from "./dashboardLogic";
+import { dashboardProjects } from "./data/dashboardData";
+import { PAGE_SIZE, computeKpis } from "./dashboardLogic";
+
+vi.mock("../../services/projectApi", () => ({ fetchProjectDetails: vi.fn(async id => ({ item: dashboardProjects.find(p=>p.id===id) })) }));
+
+vi.mock("./useManagerProjects", () => ({ default: () => ({ items: dashboardProjects, loading: false, error: null, reload: vi.fn() }) }));
 
 const getKpiSection = () => screen.getByLabelText("Indicadores institucionais");
 
@@ -145,15 +149,9 @@ describe("ManagerDashboard", () => {
         <ManagerDashboard />
       </MemoryRouter>
     );
-    const deadlines = buildDeadlines(committeeDeadlines);
-    const overdue = deadlines.filter((d) => d.urgency === "overdue");
     const kpis = computeKpis(dashboardProjects);
 
-    if (overdue.length > 0) {
-      expect(
-        screen.getAllByText(/prazo[s]? vencido[s]?/i).length
-      ).toBeGreaterThan(0);
-    }
+    expect(screen.queryByText(/prazo[s]? vencido[s]?/i)).not.toBeInTheDocument();
     if (kpis.pendingReports > 0) {
       expect(
         screen.getAllByText(/relatório[s]? pendente[s]?/i).length

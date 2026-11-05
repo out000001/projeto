@@ -14,22 +14,22 @@ export const NOTIFICATION_OPTIONS = [
   {
     id: "notifyDeadlines",
     title: "Alertas de prazos",
-    description: "Avisos de vencimento de relatórios, folhas de frequência e editais."
+    description: "Prazos cadastrados para marcos e relatórios dos seus projetos."
   },
   {
     id: "notifyHomologacoes",
     title: "Homologações e pareceres",
-    description: "Notifica quando o comitê homologa frequências ou emite parecer."
+    description: "Mostra folhas pendentes para gestores e homologações recentes para alunos."
   },
   {
     id: "notifyEditais",
-    title: "Novos editais",
-    description: "Divulgação de editais PIBEX, PROEXT e cursos da PROPAEXT."
+    title: "Propostas para análise",
+    description: "Para gestores: propostas que aguardam análise no painel."
   },
   {
     id: "weeklyDigest",
     title: "Resumo semanal",
-    description: "E-mail consolidado de segunda-feira com suas pendências."
+    description: "Mostra no portal quantos projetos foram atualizados nos últimos 7 dias."
   }
 ];
 

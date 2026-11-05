@@ -18,9 +18,9 @@ const asBase64 = blob => new Promise((resolve,reject) => {
   reader.onerror = () => reject(new Error('Não foi possível ler o anexo. Selecione-o novamente.'));
   reader.readAsDataURL(blob);
 });
-export async function submitProject(form, id) {
+export async function uploadFiles(id, files) {
   const attachments=[];
-  for (const file of form.attachments || []) {
+  for (const file of files || []) {
     if (!(file instanceof File)) throw new Error('Selecione novamente os anexos do rascunho antes de enviar.');
     const fileId=window.crypto.randomUUID();
     const chunkSize=2*1024*1024;
@@ -31,6 +31,10 @@ export async function submitProject(form, id) {
     }
     attachments.push({id:fileId,name:file.name,type:file.type,size:file.size,parts});
   }
+  return attachments;
+}
+export async function submitProject(form,id) {
+  const attachments=await uploadFiles(id,form.attachments);
   return request('POST',{id,form:{...form,attachments}});
 }
 export const fetchProjectDetails = id => request('GET',null,`?id=${encodeURIComponent(id)}&details=1`);

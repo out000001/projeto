@@ -92,10 +92,10 @@ export default function ProjectCard({ project, onViewDetails, onEnroll }) {
             </Button>
             <Button
               variant={isClosed ? "ghost" : "primary"}
-              disabled={isClosed}
+
               onClick={() => onEnroll(project)}
             >
-              Inscrever-se
+              {isClosed ? "Lista de espera" : "Inscrever-se"}
               <ArrowForward className="h-4 w-4" />
             </Button>
           </div>

@@ -9,6 +9,8 @@ import * as api from "../../services/api";
 
 // Sprint 11: a vitrine lê /api/projects. Os testes rodam sobre o mock de
 // contrato (mesmos dados do seed do back-end).
+vi.mock("./components/MyEnrollments", () => ({ default: () => null }));
+
 vi.mock("../../services/api", () => import("../../services/apiMock"));
 
 async function renderLanding() {
@@ -90,12 +92,12 @@ describe("Sprint 2 — vitrine pública", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("projeto sem vagas exibe estado esgotado e botão desabilitado", async () => {
+  it("projeto sem vagas permite registrar interesse na lista de espera", async () => {
     await renderLanding();
 
     const card = screen.getByText(/Cultura Popular do Recife Antigo/i).closest("article");
     expect(within(card).getByText(/vagas esgotadas/i)).toBeInTheDocument();
-    expect(within(card).getByRole("button", { name: /inscrever-se/i })).toBeDisabled();
+    expect(within(card).getByRole("button", { name: /lista de espera/i })).toBeEnabled();
   });
 });
 
@@ -114,7 +116,7 @@ describe("Sprint 11 — vitrine consumindo a API", () => {
       </SessionProvider>
     );
 
-    expect(screen.getByRole("status")).toHaveTextContent(/carregando projetos/i);
+    expect(screen.getByText(/carregando projetos/i)).toBeInTheDocument();
     expect(screen.queryByText(/projetos com editais ativos/i)).not.toBeInTheDocument();
 
     await act(async () => {

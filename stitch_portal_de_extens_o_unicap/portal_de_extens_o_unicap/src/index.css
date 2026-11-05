@@ -171,3 +171,5 @@ p { text-wrap: pretty; }
   .project-card-actions > div { width: 100%; margin-left: 0; }
   .project-card-actions > div .btn { flex: 1; }
 }
+html[data-density='compacta'] .card { padding: 1rem; }
+html[data-density='compacta'] :where(td, th) { padding-block: .5rem; }

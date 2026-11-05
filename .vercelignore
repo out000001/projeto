@@ -4,3 +4,5 @@
 **/.env.*
 **/server/data
 **/*.log
+
+.agents/

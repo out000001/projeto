@@ -1,4 +1,4 @@
-import { months, project } from "./data/trackingData";
+const DEFAULT_MONTHLY_HOURS = 30;
 import { toCsv } from "../../utils/download";
 
 // Regras de negócio puras do acompanhamento — sem React, para testes diretos.
@@ -7,7 +7,7 @@ export const HOMOLOGATED = "homologada";
 export const PENDING = "pending";
 export const MISSING = "missing";
 
-export function monthlyProgress(record, expectedHours = project.expectedMonthlyHours) {
+export function monthlyProgress(record, expectedHours = DEFAULT_MONTHLY_HOURS) {
   const hours = Number(record?.hours) || 0;
   if (hours <= 0) return 0;
   return Math.min(100, Math.round((hours / expectedHours) * 100));
@@ -29,7 +29,7 @@ export function cumulativeHours(frequency, studentId) {
  * - não pode homologar algo já homologado.
  * Retorna { ok, message?, status }.
  */
-export function homologateRecord(record, expectedHours = project.expectedMonthlyHours) {
+export function homologateRecord(record, expectedHours = DEFAULT_MONTHLY_HOURS) {
   const hours = Number(record?.hours) || 0;
 
   if (record?.status === HOMOLOGATED) {
@@ -65,8 +65,8 @@ export function monthCompletion(frequency, monthId) {
   return Math.round((homologated / entries.length) * 100);
 }
 
-export function monthsUntil(monthId) {
-  const index = months.findIndex((m) => m.id === monthId);
+export function monthsUntil(monthId, monthList = []) {
+  const index = monthList.findIndex((m) => m.id === monthId);
   return index === -1 ? 0 : index;
 }
 

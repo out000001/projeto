@@ -1,3 +1,4 @@
+import AccountRuntime from "./AccountRuntime";
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -26,8 +27,7 @@ const managerNav = [
 
 const communityNav = [
   { to: "/public", label: "Vitrine Pública", icon: "public" },
-  { to: "/submit", label: "Submeter Projeto", icon: "post_add" },
-  { to: "/tracking", label: "Acompanhamento", icon: "monitoring" }
+  { to: "/tracking", label: "Meu Acompanhamento", icon: "monitoring" }
 ];
 
 export default function AppLayout({ children }) {
@@ -44,7 +44,7 @@ export default function AppLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-on-surface antialiased">
       <header className="sticky top-0 z-40 border-b border-surface-container-high bg-surface-container-lowest/90 backdrop-blur-xl px-6 py-3 shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="font-display text-xl font-bold text-primary tracking-tight">UNICAP</span>
             <span className="hidden sm:inline text-label-sm text-on-surface-variant">
@@ -74,7 +74,8 @@ export default function AppLayout({ children }) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <AccountRuntime />
             <button
               type="button"
               onClick={() => setHelpOpen(true)}
@@ -97,6 +98,7 @@ export default function AppLayout({ children }) {
           </div>
         </div>
       </header>
+      <nav aria-label="Navegação no celular" className="flex gap-2 overflow-x-auto border-b border-surface-container-high px-4 py-2 sm:hidden">{links.map(link=><NavLink key={link.to} to={link.to} className={({isActive})=>`whitespace-nowrap rounded-lg px-3 py-3 text-sm ${isActive?"bg-primary text-on-primary":"text-on-surface"}`}>{link.label}</NavLink>)}</nav>
       {error && <p role="alert" className="mx-auto mt-4 max-w-4xl px-6 text-red-800">{error}</p>}
 
       <div className="flex flex-1 flex-col">
@@ -133,8 +135,7 @@ export default function AppLayout({ children }) {
               </a>
             </span>
             <span>
-              <strong className="text-on-surface">Recuperação de senha:</strong> solicite pelo mesmo e-mail
-              informando seu login institucional ou matrícula.
+              <strong className="text-on-surface">Recuperação de senha:</strong> use “Esqueceu a senha?” na tela de login. O Firebase envia as instruções ao e-mail da conta.
             </span>
             <span>
               <strong className="text-on-surface">Prazos e pareceres:</strong> consulte o calendário no módulo

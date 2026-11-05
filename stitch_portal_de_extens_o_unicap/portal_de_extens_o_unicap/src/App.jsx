@@ -142,7 +142,7 @@ export default function App() {
         } />
 
         <Route path="/submit" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedProfile="gestor">
             <AppLayout>
               <ProjectSubmission />
             </AppLayout>

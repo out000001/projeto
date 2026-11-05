@@ -8,6 +8,8 @@ import { PAGE_SIZE, computeKpis } from "./dashboardLogic";
 
 vi.mock("../../services/projectApi", () => ({ fetchProjectDetails: vi.fn(async id => ({ item: dashboardProjects.find(p=>p.id===id) })) }));
 
+vi.mock("./components/PartnershipInbox", () => ({ default: () => null }));
+
 vi.mock("./useManagerProjects", () => ({ default: () => ({ items: dashboardProjects, loading: false, error: null, reload: vi.fn() }) }));
 
 const getKpiSection = () => screen.getByLabelText("Indicadores institucionais");
@@ -198,7 +200,7 @@ describe("Sprint 8 — ações do cabeçalho do painel", () => {
     delete URL.revokeObjectURL;
   });
 
-  it("'Exportar Relatório MEC' dispara o download do CSV", async () => {
+  it("'Exportar relatório CSV' dispara o download do CSV", async () => {
     const createObjectURL = vi.fn(() => "blob:relatorio");
     URL.createObjectURL = createObjectURL;
     URL.revokeObjectURL = vi.fn();
@@ -211,7 +213,7 @@ describe("Sprint 8 — ações do cabeçalho do painel", () => {
       </MemoryRouter>
     );
 
-    await user.click(screen.getByRole("button", { name: /exportar relatório mec/i }));
+    await user.click(screen.getByRole("button", { name: /exportar relatório csv/i }));
 
     expect(createObjectURL).toHaveBeenCalledTimes(1);
     const blob = createObjectURL.mock.calls[0][0];

@@ -3,11 +3,15 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
-import { resetApiMock } from "./services/apiMock";
+import { resetApiMock, loginRequest } from "./services/apiMock";
 
 // UI tests use a contract double; Firebase SDK and rules have separate tests.
 // These demo credentials exist only in the test double and legacy SQLite API.
 vi.mock("./modules/manager-dashboard/useManagerProjects", () => ({ default: () => ({ items: [], loading: false, error: null, reload: vi.fn() }) }));
+
+vi.mock("./components/layout/AccountRuntime", () => ({ default: () => null }));
+vi.mock("./modules/public/components/MyEnrollments", () => ({ default: () => null }));
+vi.mock("./modules/manager-dashboard/components/PartnershipInbox", () => ({ default: () => null }));
 
 vi.mock("./services/api", () => import("./services/apiMock"));
 
@@ -89,7 +93,7 @@ describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
     const sairButtons = screen.getAllByRole("button", { name: /sair/i });
     expect(sairButtons.length).toBeGreaterThan(0);
     expect(screen.queryByRole("link", { name: /configurações/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /acompanhamento/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /acompanhamento/i }).length).toBeGreaterThan(0);
     // Área exclusiva do gestor não aparece para o estudante
     expect(screen.queryByRole("link", { name: /painel gestor/i })).not.toBeInTheDocument();
 
@@ -107,6 +111,13 @@ describe("Sprint 8 — rotas protegidas, perfis e sessão", () => {
       await screen.findByRole("heading", { name: /portal de extensão comunitária/i })
     ).toBeInTheDocument();
     expect(window.localStorage.getItem("unicap:test-auth")).toBeNull();
+  });
+
+  it("não permite que estudante abra a criação de projetos", async () => {
+    await loginRequest(ESTUDANTE.identifier, ESTUDANTE.password, { persist: true });
+    renderWithRouter(<App />, "/submit");
+    expect(await screen.findByRole("heading", { name: /conectando a unicap/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /submeter projeto/i })).not.toBeInTheDocument();
   });
 
   it("sessão persiste entre recargas quando 'manter conectada' está marcada", async () => {

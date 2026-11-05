@@ -81,16 +81,16 @@ SectionCard.propTypes = {
 };
 
 export default function SettingsScreen() {
-  const { settings, update, save, discard, reset, isDirty } = useSettings();
+  const { settings, update, save, discard, reset, isDirty, loading, error, syncedAt, busy } = useSettings();
   const { profile } = useSession();
   const [savedAt, setSavedAt] = useState(null);
   const [saveError, setSaveError] = useState(null);
 
   const validation = validateSettings(settings);
 
-  const handleSave = () => {
-    if (!validation.ok) return;
-    const result = save(settings);
+  const handleSave = async () => {
+    if (!validation.ok) { setSaveError(Object.values(validation.errors)[0]); return; }
+    const result = await save(settings);
     if (result.ok) {
       setSavedAt(result.savedAt);
       setSaveError(null);
@@ -100,8 +100,9 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleReset = () => {
-    reset();
+  const handleReset = async () => {
+    const result = await reset();
+    if (!result.ok) { setSaveError(result.error); return; }
     setSavedAt(null);
     setSaveError(null);
   };
@@ -115,14 +116,15 @@ export default function SettingsScreen() {
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight text-on-surface">Configurações da Conta</h1>
         <p className="mt-1 text-body-md text-on-surface-variant">
-          Gerencie seus dados de perfil, preferências de notificação, privacidade e segurança da sessão.
+          Gerencie seu perfil e os avisos exibidos no portal. As configurações ficam salvas na sua conta.
         </p>
       </div>
 
-      {saveError && (
+      {loading && <p role="status">Carregando configurações da conta…</p>}
+      {(saveError || error) && (
         <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-800" role="alert">
           <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-          {saveError}
+          {saveError || error}
         </div>
       )}
 
@@ -142,7 +144,7 @@ export default function SettingsScreen() {
               value={settings.alternateEmail}
               onChange={(e) => update({ alternateEmail: e.target.value })}
               error={validation.errors.alternateEmail}
-              hint="Usado como contato secundário se o institucional falhar."
+              hint="Contato secundário disponível para atendimento pela gestão."
             />
           </div>
         </SectionCard>
@@ -163,7 +165,7 @@ export default function SettingsScreen() {
                 <Clock className="h-4 w-4 text-primary" />
                 <span className="text-body-md text-on-surface">Última sincronização</span>
               </div>
-              <span className="text-body-md font-semibold text-primary">Hoje, 08:32</span>
+              <span className="text-body-md font-semibold text-primary">{syncedAt ? new Date(syncedAt).toLocaleString("pt-BR") : "Ainda não salva"}</span>
             </div>
             <p className="text-body-sm text-on-surface-variant">
               Alterações de vínculo, matrícula e centro devem ser solicitadas à secretaria da DEG.
@@ -171,7 +173,7 @@ export default function SettingsScreen() {
           </div>
         </SectionCard>
 
-        <SectionCard icon={Mail} title="Notificações" subtitle="Escolha o que chega ao seu e-mail institucional.">
+        <SectionCard icon={Mail} title="Notificações" subtitle="Escolha os avisos mostrados no menu Avisos. Não são enviados e-mails automáticos.">
           {NOTIFICATION_OPTIONS.map((option) => (
             <ToggleRow
               key={option.id}
@@ -219,7 +221,7 @@ export default function SettingsScreen() {
 
             <div>
               <label htmlFor="session-timeout" className="mb-1 block text-label-sm font-medium text-on-surface">
-                Tempo de expiração da sessão
+                Encerrar sessão após inatividade
               </label>
               <select
                 id="session-timeout"
@@ -253,18 +255,18 @@ export default function SettingsScreen() {
           <div className="flex flex-wrap items-center gap-3">
             <Button
               variant="ghost"
-              onClick={handleReset}
+              onClick={handleReset} disabled={busy || loading}
               className="gap-2"
-              title="Restaura todos os padrões e apaga o que está salvo"
+              title="Restaura as preferências padrão sem apagar sua conta"
             >
               <SettingsIcon className="h-4 w-4" />
               Restaurar padrões
             </Button>
-            <Button variant="outline" onClick={discard} disabled={!isDirty} className="gap-2">
+            <Button variant="outline" onClick={discard} disabled={busy || !isDirty} className="gap-2">
               Descartar
             </Button>
-            <Button onClick={handleSave} disabled={!validation.ok || !isDirty} className="gap-2">
-              Salvar configurações
+            <Button onClick={handleSave} disabled={busy || loading || !isDirty} className="gap-2">
+              {busy ? "Salvando…" : "Salvar configurações"}
               <CheckCircle className="h-4 w-4" />
             </Button>
           </div>

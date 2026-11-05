@@ -1,57 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
-import { sanitizeSettings, settingsAreEqual, DEFAULT_SETTINGS } from "../settingsLogic";
-
-const STORAGE_KEY = "portal-unicap.settings.v1";
-
-function readStored() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return sanitizeSettings(JSON.parse(raw));
-  } catch {
-    return null;
-  }
-}
-
-export default function useSettings() {
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [savedSnapshot, setSavedSnapshot] = useState(DEFAULT_SETTINGS);
-
-  // Carrega uma única vez no mount (evita mismatch com o primeiro render).
-  useEffect(() => {
-    const stored = readStored() || DEFAULT_SETTINGS;
-    setSettings(stored);
-    setSavedSnapshot(stored);
-  }, []);
-
-  const update = useCallback((patch) => {
-    setSettings((prev) => ({ ...prev, ...patch }));
-  }, []);
-
-  const save = useCallback((next) => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      setSavedSnapshot(next);
-      return { ok: true, savedAt: new Date().toISOString() };
-    } catch {
-      return { ok: false, error: "Não foi possível salvar suas preferências neste navegador." };
-    }
-  }, []);
-
-  const discard = useCallback(() => {
-    setSettings({ ...savedSnapshot });
-  }, [savedSnapshot]);
-
-  const reset = useCallback(() => {
-    try {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // navegação privada: apenas reseta em memória
-    }
-    setSettings({ ...DEFAULT_SETTINGS });
-    setSavedSnapshot({ ...DEFAULT_SETTINGS });
-    return { ok: true };
-  }, []);
-
-  return { settings, update, save, discard, reset, isDirty: !settingsAreEqual(settings, savedSnapshot) };
+import {useCallback,useEffect,useState} from 'react';
+import {DEFAULT_SETTINGS,settingsAreEqual} from '../settingsLogic';
+import {getAccount,saveAccount} from '../../../services/portalApi';
+export default function useSettings(){
+ const [settings,setSettings]=useState({...DEFAULT_SETTINGS}),[savedSnapshot,setSavedSnapshot]=useState({...DEFAULT_SETTINGS}),[loading,setLoading]=useState(true),[error,setError]=useState(''),[syncedAt,setSyncedAt]=useState(null),[busy,setBusy]=useState(false);
+ useEffect(()=>{let active=true;getAccount().then(result=>{if(active){setSettings(result.settings);setSavedSnapshot(result.settings);setSyncedAt(result.syncedAt);}}).catch(err=>{if(active)setError(err.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
+ const update=useCallback(patch=>setSettings(prev=>({...prev,...patch})),[]);
+ const persist=useCallback(async(next,reset=false)=>{setBusy(true);setError('');try{const result=await saveAccount(next,reset);setSettings(result.settings);setSavedSnapshot(result.settings);setSyncedAt(result.savedAt);window.dispatchEvent(new window.CustomEvent('portal-settings-changed',{detail:result.settings}));return{ok:true,savedAt:result.savedAt};}catch(err){setError(err.message);return{ok:false,error:err.message};}finally{setBusy(false);}},[]);
+ return{settings,update,save:next=>persist(next),discard:()=>setSettings({...savedSnapshot}),reset:()=>persist(DEFAULT_SETTINGS,true),isDirty:!settingsAreEqual(settings,savedSnapshot),loading,error,syncedAt,busy};
 }

@@ -6,6 +6,14 @@
   "outputDirectory": "stitch_portal_de_extens_o_unicap/portal_de_extens_o_unicap/dist",
   "rewrites": [
     {
+      "source": "/api/portal",
+      "destination": "/api/portal"
+    },
+    {
+      "source": "/api/tracking",
+      "destination": "/api/tracking"
+    },
+    {
       "source": "/api/projects",
       "destination": "/api/projects"
     },

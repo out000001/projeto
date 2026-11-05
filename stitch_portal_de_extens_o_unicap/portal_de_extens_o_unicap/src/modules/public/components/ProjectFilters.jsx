@@ -21,7 +21,9 @@ export default function ProjectFilters({
   onLocalChange,
   onToggleTurno,
   onOnlyOpenChange,
-  onClear
+  onClear,
+  areas = areaOptions,
+  locations = localOptions
 }) {
   return (
     <Card className="p-6">
@@ -50,7 +52,7 @@ export default function ProjectFilters({
             onChange={(e) => onAreaChange(e.target.value)}
             className="input"
           >
-            {areaOptions.map((a) => (
+            {areas.map((a) => (
               <option key={a} value={a}>
                 {a}
               </option>
@@ -68,7 +70,7 @@ export default function ProjectFilters({
             onChange={(e) => onLocalChange(e.target.value)}
             className="input"
           >
-            {localOptions.map((l) => (
+            {locations.map((l) => (
               <option key={l} value={l}>
                 {l}
               </option>
@@ -124,19 +126,17 @@ export default function ProjectFilters({
       <div className="mt-6 border-t border-surface-container-high pt-4">
         <div className="mb-2 flex items-center gap-2 text-primary">
           <CalendarMonth className="h-5 w-5" />
-          <span className="font-label-lg font-semibold text-on-surface">Cronograma 2026.2</span>
+          <span className="font-label-lg font-semibold text-on-surface">Prazos de inscrição</span>
         </div>
-        <ul className="space-y-1.5 text-sm font-medium">
-          <li><span className="font-semibold text-primary">Abertura: 10 de Outubro</span></li>
-          <li><span className="text-on-surface-variant">Encerramento Bolsas: 24 de Novembro</span></li>
-          <li><span className="text-on-surface-variant">Início das Atividades: 02 de Dezembro</span></li>
-        </ul>
+        <p className="text-sm text-on-surface-variant">Consulte o prazo de cada projeto na vitrine. As datas são definidas pela gestão ao publicar.</p>
       </div>
     </Card>
   );
 }
 
 ProjectFilters.propTypes = {
+  areas: PropTypes.arrayOf(PropTypes.string),
+  locations: PropTypes.arrayOf(PropTypes.string),
   area: PropTypes.string.isRequired,
   local: PropTypes.string.isRequired,
   turnos: PropTypes.arrayOf(PropTypes.string).isRequired,

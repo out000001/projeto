@@ -1,187 +1,20 @@
-import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, vi } from "vitest";
-import ProjectTracking from "./ProjectTracking";
-
-function renderTracking() {
-  return render(
-    <MemoryRouter>
-      <ProjectTracking />
-    </MemoryRouter>
-  );
-}
-
-beforeEach(() => {
-  window.localStorage.clear();
-});
-
-describe("Sprint 4 — acompanhamento de projeto", () => {
-  it("renderiza cabeçalho do projeto, KPIs e abas de navegação", () => {
-    renderTracking();
-
-    expect(screen.getByRole("heading", { name: /clínica de direitos humanos/i })).toBeInTheDocument();
-    expect(screen.getByText(/carga horária aprovada/i)).toBeInTheDocument();
-    expect(screen.getByText(/índice de execução/i)).toBeInTheDocument();
-
-    for (const tab of ["Visão Geral & Indicadores", "Cronograma & Atividades", "Bolsistas & Frequência", "Relatórios & Pareceres"]) {
-      expect(screen.getByRole("button", { name: tab })).toBeInTheDocument();
-    }
-  });
-
-  it("aba de frequência abre por padrão com folha mensal e ações de homologação", () => {
-    renderTracking();
-
-    expect(screen.getByRole("heading", { name: /equipe discente e homologação/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Março" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /homologar selecionados/i })).toBeDisabled();
-    // estudante com folha homologada mostra badge; pendentes mostram botão homologar
-    expect(screen.getByText("Homologada")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: "Homologar" }).length).toBeGreaterThan(0);
-  });
-
-  it("permite registrar horas e homologar a folha do mês", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    const input = screen.getByLabelText(/horas de mariana albuquerque limpa|horas de mariana albuquerque lima/i);
-    await user.clear(input);
-    await user.type(input, "30");
-
-    const row = input.closest("tr");
-    await user.click(within(row).getByRole("button", { name: "Homologar" }));
-
-    expect(within(row).getByText("Homologada")).toBeInTheDocument();
-    expect(within(row).queryByLabelText(/horas de mariana/i)).not.toBeInTheDocument();
-  });
-
-  it("não homologa folha com 0 horas e exibe aviso", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    // Rafael está com 0h em março -> botão é "Cobrar Envio"
-    const rafaelRow = screen.getByLabelText(/selecionar rafael mendes gusmão/i).closest("tr");
-    expect(within(rafaelRow).getByRole("button", { name: /cobrar envio/i })).toBeInTheDocument();
-
-    // Mariana (28h pendente) pode ser homologada
-    const marianaRow = screen.getByLabelText(/selecionar mariana albuquerque lima/i).closest("tr");
-    await user.click(within(marianaRow).getByRole("button", { name: "Homologar" }));
-    expect(within(marianaRow).getByText("Homologada")).toBeInTheDocument();
-  });
-
-  it("homologa em lote os registros selecionados", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByLabelText(/selecionar mariana albuquerque lima/i));
-    await user.click(screen.getByLabelText(/selecionar gabriela dias vasconcelos/i));
-
-    const bulkButton = screen.getByRole("button", { name: /homologar selecionados \(2\)/i });
-    await user.click(bulkButton);
-
-    const marianaRow = screen.getByLabelText(/selecionar mariana albuquerque lima/i).closest("tr");
-    const gabrielaRow = screen.getByLabelText(/selecionar gabriela dias vasconcelos/i).closest("tr");
-    expect(within(marianaRow).getByText("Homologada")).toBeInTheDocument();
-    expect(within(gabrielaRow).getByText("Homologada")).toBeInTheDocument();
-  });
-
-  it("troca de mês exibe folha correspondente", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByRole("button", { name: "Abril", exact: false }));
-
-    const abrilInput = screen.getByLabelText(/horas de rafael mendes gusmão/i);
-    expect(abrilInput).toHaveValue(12);
-  });
-
-  it("aba cronograma mostra marcos com status", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByRole("button", { name: /cronograma & atividades/i }));
-
-    expect(screen.getByRole("heading", { name: /cronograma & marcos/i })).toBeInTheDocument();
-    expect(screen.getByText(/início das atividades/i)).toBeInTheDocument();
-    expect(screen.getByText(/relatório parcial de extensão/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Concluído").length).toBeGreaterThan(0);
-    expect(screen.getByText("Em andamento")).toBeInTheDocument();
-  });
-
-  it("aba relatórios lista entregas com prazos e permite enviar pendentes", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByRole("button", { name: /relatórios & pareceres/i }));
-
-    expect(screen.getByText(/relatório parcial de extensão/i)).toBeInTheDocument();
-    expect(screen.getByText(/aguarda consolidação/i)).toBeInTheDocument();
-
-    const sendButtons = screen.getAllByRole("button", { name: /enviar/i });
-    await user.click(sendButtons[0]);
-
-    expect(screen.getByText(/envio de "relatório parcial de extensão" registrado/i)).toBeInTheDocument();
-  });
-
-  it("aba visão geral exibe progresso por discente e homologação por competência", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByRole("button", { name: /visão geral & indicadores/i }));
-
-    expect(screen.getByRole("heading", { name: /indicadores por discente/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /homologação por competência/i })).toBeInTheDocument();
-    expect(screen.getByText(/lucas andrade bezerra/i)).toBeInTheDocument();
-  });
-});
-
-describe("Sprint 8 — ações do cabeçalho e exportação", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-    delete URL.createObjectURL;
-    delete URL.revokeObjectURL;
-  });
-
-  it("'Emitir Declaração do Projeto' confirma a emissão", async () => {
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByRole("button", { name: /emitir declaração do projeto/i }));
-
-    expect(await screen.findByRole("status")).toHaveTextContent(/declaração de vigência/i);
-  });
-
-  it("'Exportar Folha' dispara o download do CSV da competência", async () => {
-    const createObjectURL = vi.fn(() => "blob:folha");
-    URL.createObjectURL = createObjectURL;
-    URL.revokeObjectURL = vi.fn();
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
-
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByRole("button", { name: /exportar folha/i }));
-
-    expect(createObjectURL).toHaveBeenCalledTimes(1);
-    expect(createObjectURL.mock.calls[0][0].type).toContain("text/csv");
-  });
-
-  it("'Baixar' no painel de relatórios gera o TXT do relatório", async () => {
-    const createObjectURL = vi.fn(() => "blob:relatorio");
-    URL.createObjectURL = createObjectURL;
-    URL.revokeObjectURL = vi.fn();
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
-
-    const user = userEvent.setup();
-    renderTracking();
-
-    await user.click(screen.getByRole("button", { name: /relatórios & pareceres/i }));
-    const downloadButtons = screen.getAllByRole("button", { name: /baixar/i });
-    expect(downloadButtons.length).toBeGreaterThan(0);
-
-    await user.click(downloadButtons[0]);
-
-    expect(createObjectURL).toHaveBeenCalledTimes(1);
-    expect(createObjectURL.mock.calls[0][0].type).toContain("text/plain");
-  });
-});
+import {render,screen,waitFor} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {MemoryRouter} from 'react-router-dom';
+import {beforeEach,it,expect,vi} from 'vitest';
+import ProjectTracking from './ProjectTracking';
+import useTracking from './useTracking';
+vi.mock('./useTracking',()=>({default:vi.fn()}));
+vi.mock('../../services/portalApi',()=>({getEnrollments:vi.fn(async()=>({items:[]})),promoteEnrollment:vi.fn(),portalRequest:vi.fn()}));
+vi.mock('../../services/projectApi',()=>({uploadFiles:vi.fn(async()=>[])}));
+const month=new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'}).slice(0,7);let state;
+beforeEach(()=>{state={items:[{id:'tracking-project',title:'Projeto salvo no banco'}],id:'tracking-project',setId:vi.fn(),loading:false,busy:false,error:'',reload:vi.fn(),action:vi.fn(async()=>true),data:{canManage:true,project:{id:'tracking-project',title:'Projeto salvo no banco',coordinator:'Gestora real',center:'Centro',grant:'Edital',plan:'Cronograma salvo',activities:'Oficinas salvas'},tracking:{revision:3,config:{startDate:'2026-01-01',endDate:'2028-12-31',totalHours:120,monthlyHours:30,beneficiaries:12},participants:[{id:'participant-1',name:'Aluno cadastrado',mat:'123',course:'Direito',email:'aluno@example.invalid',type:'voluntary',active:true,userId:'student'}],frequency:{[month]:{'participant-1':{hours:12,status:'pending'}}},reports:[],milestones:[]}}};useTracking.mockImplementation(()=>state);});
+const view=()=>render(<MemoryRouter><ProjectTracking/></MemoryRouter>);
+it('renders only the selected project and saved frequency',()=>{view();expect(screen.getByRole('heading',{name:'Projeto salvo no banco'})).toBeInTheDocument();expect(screen.getByLabelText('Horas de Aluno cadastrado')).toHaveValue(12);expect(screen.queryByText(/Dom Helder Câmara/)).not.toBeInTheDocument();});
+it('sends changed hours to the API without claiming success before confirmation',async()=>{let resolve;state.action.mockImplementationOnce(()=>new Promise(done=>{resolve=done;}));const user=userEvent.setup();view();const field=screen.getByLabelText('Horas de Aluno cadastrado');await user.clear(field);await user.type(field,'18');await user.click(screen.getByRole('button',{name:'Salvar horas'}));expect(state.action).toHaveBeenCalledWith({action:'hours',month,participantId:'participant-1',hours:18});expect(screen.queryByText('Alteração salva no banco de dados.')).not.toBeInTheDocument();resolve(true);expect(await screen.findByText('Alteração salva no banco de dados.')).toBeInTheDocument();});
+it('homologates saved hours through the server',async()=>{const user=userEvent.setup();view();await user.click(screen.getByRole('button',{name:'Homologar',exact:true}));expect(state.action).toHaveBeenCalledWith({action:'homologate',month,participantIds:['participant-1']});});
+it('does not expose manager controls in a student view',()=>{state.data.canManage=false;view();expect(screen.queryByRole('button',{name:'Participantes',exact:true})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Homologar',exact:true})).not.toBeInTheDocument();expect(screen.queryByLabelText('Horas de Aluno cadastrado')).not.toBeInTheDocument();expect(screen.getAllByText('12h').length).toBeGreaterThan(0);});
+it('adds a participant with the entered name and account email',async()=>{const user=userEvent.setup();view();await user.click(screen.getByRole('button',{name:'Participantes',exact:true}));await user.type(screen.getByLabelText('Nome do participante'),'Novo aluno');await user.type(screen.getByLabelText('E-mail da conta do aluno'),'novo@example.invalid');await user.click(screen.getByRole('button',{name:'Salvar participante'}));await waitFor(()=>expect(state.action).toHaveBeenCalledWith({action:'participant-save',participant:{name:'Novo aluno',email:'novo@example.invalid',mat:'',course:'',type:'voluntary'}}));});
+it('persists a report instead of displaying a mock receipt',async()=>{const user=userEvent.setup();view();await user.click(screen.getByRole('button',{name:'Relatórios e pareceres',exact:true}));await user.type(screen.getByLabelText('Título do relatório'),'Relatório de oficinas');await user.type(screen.getByLabelText('Conteúdo do relatório'),'Atividades realizadas nas oficinas comunitárias.');await user.click(screen.getByRole('button',{name:'Enviar relatório',exact:true}));await waitFor(()=>expect(state.action).toHaveBeenCalledWith(expect.objectContaining({action:'report-submit',label:'Relatório de oficinas',attachments:[]})));});
+it('shows errors and reload without rendering stale project data',async()=>{state.error='Você não faz parte deste projeto.';state.data=null;const user=userEvent.setup();view();expect(screen.getByRole('alert')).toHaveTextContent('Você não faz parte');expect(screen.queryByText('Aluno cadastrado')).not.toBeInTheDocument();await user.click(screen.getByRole('button',{name:'Recarregar acompanhamento'}));expect(state.reload).toHaveBeenCalled();});
+it('shows an empty state when no real projects are linked',()=>{state.items=[];state.id='';state.data=null;view();expect(screen.getByText(/Você ainda não tem projetos disponíveis/)).toBeInTheDocument();});

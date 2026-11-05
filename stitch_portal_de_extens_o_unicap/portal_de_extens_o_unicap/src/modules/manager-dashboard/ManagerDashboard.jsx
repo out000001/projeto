@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import { Download, Plus } from "../../components/ui/Icons";
 import { downloadTextFile } from "../../utils/download";
-import { filterOptions as defaultFilterOptions, semesterInfo } from "./data/dashboardData";
+import { filterOptions as defaultFilterOptions } from "./data/dashboardData";
 import {
   filterProjects,
   sortProjects,
@@ -20,6 +20,7 @@ import PendingActions from "./components/PendingActions";
 import ProjectDetailModal from "./components/ProjectDetailModal";
 
 import { fetchProjectDetails } from "../../services/projectApi";
+import PartnershipInbox from "./components/PartnershipInbox";
 import useManagerProjects from "./useManagerProjects";
 
 const DEFAULT_FILTERS = {
@@ -90,14 +91,14 @@ export default function ManagerDashboard() {
               variant="outline"
               onClick={() =>
                 downloadTextFile(
-                  `relatorio-mec-extensao-${semesterInfo.code}.csv`,
+                  `relatorio-extensao-${new Date().getFullYear()}.csv`,
                   buildProjectsCsv(sorted),
                   "text/csv;charset=utf-8"
                 )
               }
             >
               <Download className="h-4 w-4" />
-              Exportar Relatório MEC
+              Exportar relatório CSV
             </Button>
             <Button onClick={() => navigate("/submit")}>
               <Plus className="h-4 w-4" />
@@ -178,6 +179,8 @@ export default function ManagerDashboard() {
           <CommitteeDeadlines deadlines={deadlines} />
         </div>
       </section>
+
+      <PartnershipInbox />
 
       {selectedProject && (
         <ProjectDetailModal

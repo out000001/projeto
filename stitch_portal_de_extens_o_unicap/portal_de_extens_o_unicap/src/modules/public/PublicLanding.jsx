@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import { enrollProject } from "../../services/portalApi";
+import PartnershipForm from "./components/PartnershipForm";
+import MyEnrollments from "./components/MyEnrollments";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import {
@@ -57,7 +60,11 @@ FaqItem.propTypes = {
 
 export default function PublicLanding({ authenticated = false }) {
   const navigate = useNavigate();
-  const { logout } = useSession();
+  const { logout, profile, isAuthenticated } = useSession();
+  const [enrollmentNotice,setEnrollmentNotice] = useState("");
+  const [enrollmentError,setEnrollmentError] = useState("");
+  const [enrolling,setEnrolling] = useState(false);
+  const [enrollmentVersion,setEnrollmentVersion] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
   // A vitrine lê somente o catálogo público do Firestore.
   const {
@@ -88,14 +95,31 @@ export default function PublicLanding({ authenticated = false }) {
     if (await logout()) navigate("/", { replace: true });
   };
 
-  const handleEnroll = (project) => {
-    // Sprint 2: inscrição ainda é mock. Sprint 3 conecta ao fluxo de submissão.
-    window.alert(`Inscrição registrada (mock) no projeto: ${project.title}`);
+  useEffect(() => {
+    const changed = () => { reloadProjects(); setEnrollmentVersion(value => value + 1); };
+    window.addEventListener('portal-enrollment-changed',changed);
+    return () => window.removeEventListener('portal-enrollment-changed',changed);
+  }, [reloadProjects]);
+
+  const handleEnroll = async (project) => {
+    if (!isAuthenticated) { navigate('/'); return; }
+    if (enrolling) return;
+    setEnrolling(true); setEnrollmentNotice(''); setEnrollmentError('');
+    try {
+      const result = await enrollProject(String(project.id));
+      setEnrollmentNotice(result.enrollment.status === 'confirmed' ? `Inscrição confirmada em “${project.title}”. Consulte seu acompanhamento em Minhas inscrições.` : `Sua inscrição em “${project.title}” foi salva na lista de espera.`);
+      setSelectedProject(null); reloadProjects(); setEnrollmentVersion(value => value + 1);
+    } catch (error) { setEnrollmentError(error.message); setSelectedProject(null); }
+    finally { setEnrolling(false); window.scrollTo({ top: 0, behavior: "instant" }); }
   };
 
   return (
     <div className={`public-portal flex flex-col gap-8 ${authenticated ? "" : "mx-auto max-w-7xl px-5 py-6 md:px-8"}`}>
       {!authenticated && <header className="public-header"><a href="/" className="public-wordmark">UNICAP<span>Extensão Comunitária</span></a><Button variant="outline" onClick={() => navigate("/")}>Entrar no portal <ArrowForward className="h-4 w-4" /></Button></header>}
+      {enrollmentNotice && <p role="status" className="rounded-lg bg-surface-container-low p-4 text-primary">{enrollmentNotice}</p>}
+      {enrollmentError && <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-800">{enrollmentError}</p>}
+      {enrolling && <p role="status">Salvando inscrição…</p>}
+      {authenticated && <MyEnrollments key={enrollmentVersion} />}
       <section className="public-hero relative overflow-hidden rounded-2xl bg-surface-container-low p-8 text-on-surface md:p-12 lg:p-16">
         <div className="relative z-10 max-w-4xl">
           <div className="mb-4 flex items-center gap-2 rounded-full text-sm font-semibold uppercase tracking-wider text-primary">
@@ -123,8 +147,8 @@ export default function PublicLanding({ authenticated = false }) {
                 placeholder="Busque por área, curso, bairro ou palavra-chave..."
               />
             </div>
-            <Button className="w-full sm:w-auto" onClick={() => navigate(authenticated ? "/submit" : "/")}>
-              {authenticated ? "Submeter Proposta" : "Área de Inscrição"}
+            <Button className="w-full sm:w-auto" onClick={() => navigate(authenticated ? profile === "gestor" ? "/submit" : "/tracking" : "/")}>
+              {authenticated ? profile === "gestor" ? "Submeter Proposta" : "Meu acompanhamento" : "Área de Inscrição"}
               <ArrowForward className="h-4 w-4" />
             </Button>
             {authenticated && (
@@ -156,6 +180,8 @@ export default function PublicLanding({ authenticated = false }) {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <aside className="lg:col-span-3">
           <ProjectFilters
+            areas={["Todas as áreas", ...new Set(projects.map(project => project.area).filter(Boolean))]}
+            locations={["Todos os locais", ...new Set(projects.map(project => project.local).filter(Boolean))]}
             area={area}
             local={local}
             turnos={turnos}
@@ -282,46 +308,7 @@ export default function PublicLanding({ authenticated = false }) {
             ONGs, associações de bairro, órgãos públicos e empresas podem submeter propostas conjuntas para
             receber estudantes, docentes e infraestrutura universitária.
           </p>
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              window.alert("Proposta de parceria enviada (mock).");
-            }}
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="partner-name" className="mb-1 block text-label-sm font-medium text-on-surface">
-                  Nome da Organização
-                </label>
-                <input
-                  id="partner-name"
-                  type="text"
-                  required
-                  placeholder="Ex: Associação Moradores Santo Amaro"
-                  className="input"
-                />
-              </div>
-              <div>
-                <label htmlFor="partner-type" className="mb-1 block text-label-sm font-medium text-on-surface">
-                  Tipo de Entidade
-                </label>
-                <select id="partner-type" required defaultValue="" className="input">
-                  <option value="" disabled>
-                    Selecione...
-                  </option>
-                  <option>ONG / Associação</option>
-                  <option>Órgão Público</option>
-                  <option>Empresa Privada</option>
-                  <option>Escola / Instituição Educacional</option>
-                </select>
-              </div>
-            </div>
-            <Button type="submit" variant="secondary" className="w-full sm:w-auto">
-              Enviar Proposta de Parceria
-              <ArrowForward className="h-4 w-4" />
-            </Button>
-          </form>
+          <PartnershipForm />
         </Card>
       </section>
 

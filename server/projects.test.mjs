@@ -6,7 +6,7 @@ const form=()=>({...createEmptySubmission(),title:'Projeto comunitário de teste
 function setup(role='gestor') {
  const data=new Map([['users/test-user',{name:'Ana',profile:role}]]);
  const doc=path=>({path,collection:name=>collection(`${path}/${name}`),get:async()=>({exists:data.has(path),data:()=>data.get(path)} )});
- const collection=path=>({select:()=>collection(path),doc:id=>doc(`${path}/${id}`),get:async()=>({docs:[...data.entries()].filter(([key])=>key.startsWith(path+'/')&&key.split('/').length===path.split('/').length+1).map(([key,value])=>({id:key.split('/').at(-1),data:()=>value}))})});
+ const collection=path=>({select:()=>collection(path),where:()=>collection(path),doc:id=>doc(`${path}/${id}`),get:async()=>({docs:[...data.entries()].filter(([key])=>key.startsWith(path+'/')&&key.split('/').length===path.split('/').length+1).map(([key,value])=>({id:key.split('/').at(-1),data:()=>value}))})});
  const writer={set:(ref,value,options)=>data.set(ref.path,options?.merge?{...data.get(ref.path),...value}:value),create:(ref,value)=>{assert.equal(data.has(ref.path),false);data.set(ref.path,value);},update:(ref,value)=>data.set(ref.path,{...data.get(ref.path),...value}),delete:ref=>data.delete(ref.path),get:ref=>ref.get()};
  const db={collection,runTransaction:async fn=>fn(writer),batch:()=>({...writer,commit:async()=>{}})};
  const handler=createProjectsHandler({auth:{verifyIdToken:async()=>({uid:'test-user',email:'test@example.com'})},db});
@@ -23,7 +23,7 @@ test('requires a valid session and restricts manager list',async()=>{
  assert.equal((await request()).code,403);
 });
 test('saves privately, ignores forged role/status, and retries without duplicating',async()=>{
- const {request,data}=setup('estudante');
+ const {request,data}=setup('gestor');
  const body={id,form:{...form(),status:'active',ownerId:'someone-else'}};
  assert.equal((await request('POST',body)).code,201);
  assert.equal(data.get(`submissions/${id}`).ownerId,'test-user');
@@ -31,7 +31,7 @@ test('saves privately, ignores forged role/status, and retries without duplicati
  assert.equal(data.has(`projects/${id}`),false);
  assert.equal((await request('POST',body)).code,200);
  assert.equal([...data.keys()].filter(k=>k.startsWith('submissions/')).length,1);
- assert.equal((await request('PATCH',{id,action:'publish'})).code,403);
+ assert.equal((await setup('estudante').request('POST',body)).code,403);
 });
 test('validates every step and the full compliance checklist server-side',async()=>{
  const {request,data}=setup();
@@ -54,7 +54,7 @@ test('publication exposes only catalogue fields and can be removed atomically',a
  assert.equal(data.get(`submissions/${id}`).published,false);
 });
 test('attachment chunks stay below Firestore document limits and download intact',async()=>{
- const {request,data}=setup();const fileId='attachment-test-12345';const bytes=Buffer.alloc(2*1024*1024,42);
+ const {request,data}=setup();const fileId='attachment-test-12345';const bytes=Buffer.alloc(2*1024*1024,42);bytes.write('%PDF-1.4');
  assert.equal((await request('POST',{id,action:'upload',attachment:{id:fileId,part:0,data:bytes.toString('base64')}})).code,200);
  for(const[key,value]of data) if(key.includes('/data/')) assert.ok(JSON.stringify(value).length<1000000);
  const f={...form(),attachments:[{id:fileId,name:'test.pdf',type:'application/pdf',size:bytes.length,parts:1}]};

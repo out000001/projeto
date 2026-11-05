@@ -25,9 +25,9 @@ try {
  await db.collection('users').doc('student').set({profile:'estudante',name:'Estudante'});
  const id='integration-project-12345';const fileId='integration-file-12345';
  const bytes=Buffer.from('%PDF-1.4\nPrivate attachment');
- assert.equal((await request('student','POST',{id,action:'upload',attachment:{id:fileId,part:0,data:bytes.toString('base64')}})).code,200);
+ assert.equal((await request('manager','POST',{id,action:'upload',attachment:{id:fileId,part:0,data:bytes.toString('base64')}})).code,200);
  const form={...createEmptySubmission(),title:'Projeto persistente de integração',ods:['4'],socialJustification:'Proposta de integração com justificativa social suficientemente detalhada para validação.',bolsistas:1,expectedAudience:30,objectives:'Objetivos detalhados para a comunidade.',activities:'Oficinas e atividades de integração.',selectedDeliverables:['relatorio_final'],budget:[{category:'material',amount:200}],attachments:[{id:fileId,name:'document.pdf',type:'application/pdf',parts:1,size:bytes.length}],compliance:{cne:true,forproex:true,lgpd:true,autorizacao:true}};
- assert.equal((await request('student','POST',{id,form})).code,201);
+ assert.equal((await request('manager','POST',{id,form})).code,201);
  const listed=await request('manager','GET');assert.equal(listed.value.items[0].id,id);
  assert.equal((await db.collection('projects').get()).size,0);
  const info={local:'Boa Vista',courses:'Todos os cursos',hours:'20h',deadline:'2027-02-10'};

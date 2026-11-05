@@ -1,3 +1,5 @@
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../services/firebase";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../../contexts/SessionContext";
@@ -33,6 +35,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [keepSession, setKeepSession] = useState(true);
+  const [recovering,setRecovering] = useState(false);
+  const [recoveryNotice,setRecoveryNotice] = useState("");
   const [formError, setFormError] = useState(null);
 
   if (isAuthenticated) {
@@ -40,6 +44,17 @@ export default function LoginForm() {
   }
 
   if (registering) return <RegistrationForm onBack={() => setRegistering(false)} />;
+
+  const recoverPassword = async () => {
+    setFormError(null); setRecoveryNotice("");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim())) { setFormError("Informe seu e-mail no campo de login antes de recuperar a senha."); return; }
+    setRecovering(true);
+    try { await sendPasswordResetEmail(auth, identifier.trim()); setRecoveryNotice("Se houver uma conta com esse e-mail, você receberá as instruções de recuperação. Confira também o spam."); }
+    catch (error) {
+      if (error.code === "auth/user-not-found") setRecoveryNotice("Se houver uma conta com esse e-mail, você receberá as instruções de recuperação.");
+      else setFormError(error.code === "auth/too-many-requests" ? "Muitas tentativas. Aguarde antes de tentar novamente." : "Não foi possível solicitar a recuperação. Verifique sua conexão e tente novamente.");
+    } finally { setRecovering(false); }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -116,6 +131,7 @@ export default function LoginForm() {
           </div>
         )}
 
+        <p role="status" className="text-sm text-primary">{recoveryNotice}</p>
         <Input
           label="Login Institucional (e-mail)"
           type="email"
@@ -132,12 +148,7 @@ export default function LoginForm() {
             <label className="font-label-md font-semibold text-on-surface" htmlFor="password">
               Senha de Acesso
             </label>
-            <a
-              className="text-sm text-primary font-semibold hover:underline"
-              href="mailto:extensao@unicap.br?subject=Recupera%C3%A7%C3%A3o%20de%20senha%20%E2%80%94%20Portal%20de%20Extens%C3%A3o"
-            >
-              Esqueceu a senha?
-            </a>
+            <button type="button" className="min-h-11 text-sm text-primary font-semibold hover:underline" disabled={recovering} onClick={recoverPassword}>{recovering ? "Solicitando…" : "Esqueceu a senha?"}</button>
           </div>
           <div className="relative">
             <input

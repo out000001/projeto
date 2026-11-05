@@ -10,23 +10,23 @@ export default function KpiCards({ projects }) {
 
   const cards = [
     {
-      label: "Projetos no semestre",
+      label: "Projetos cadastrados",
       value: String(kpis.total),
       note: `${kpis.activeCount} ativos`,
       icon: "workspaces",
       accent: "text-primary bg-primary/10"
     },
     {
-      label: "Estudantes engajados",
+      label: "Vagas previstas para estudantes",
       value: formatNumber(kpis.students),
       note: `${kpis.scholarships} bolsas • ${kpis.volunteers} voluntários`,
       icon: "groups",
       accent: "text-secondary bg-secondary/10"
     },
     {
-      label: "Público impactado",
+      label: "Público estimado nas propostas",
       value: formatNumber(kpis.impact),
-      note: "Comunidades de Recife e RMR",
+      note: "Estimativa informada no cadastro",
       icon: "diversity_3",
       accent: "text-teal-700 bg-teal-700/10"
     },

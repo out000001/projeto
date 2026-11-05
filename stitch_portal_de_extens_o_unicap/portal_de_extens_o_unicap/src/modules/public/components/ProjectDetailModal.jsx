@@ -85,7 +85,7 @@ export default function ProjectDetailModal({ project, onClose, onEnroll }) {
           </Button>
           <Button
             variant={isClosed ? "ghost" : "primary"}
-            disabled={isClosed}
+
             onClick={() => onEnroll(project)}
           >
             {isClosed ? "Lista de espera" : "Inscrever-se"}

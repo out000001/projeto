@@ -20,7 +20,7 @@ function readDraft() {
  * - limpa o rascunho após o envio.
  */
 export default function useSubmissionDraft(initialForm) {
-  const [form, setForm] = useState(() => readDraft() || initialForm);
+  const [form, setForm] = useState(() => ({ ...initialForm, ...(readDraft() || {}) }));
   const [savedAt, setSavedAt] = useState(null);
 
   useEffect(() => {

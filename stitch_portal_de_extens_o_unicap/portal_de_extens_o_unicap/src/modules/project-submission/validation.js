@@ -24,6 +24,14 @@ export function validateStep(stepId, form) {
       break;
     }
     case "equipe": {
+      const labels = { bolsistas: "Bolsistas PIBEX", voluntarios: "Voluntários", expectedAudience: "Público Estimado" };
+      for (const [field, label] of Object.entries(labels)) {
+        const value = Number(form[field] ?? 0);
+        if (!Number.isInteger(value) || value < 0 || value > 1000000) {
+          errors[field] = `${label}: informe um número inteiro entre 0 e 1.000.000, sem vírgula ou ponto decimal.`;
+        }
+      }
+      if (Object.keys(errors).length) break;
       const bolsistas = Number(form.bolsistas) || 0;
       const voluntarios = Number(form.voluntarios) || 0;
       const audience = Number(form.expectedAudience) || 0;

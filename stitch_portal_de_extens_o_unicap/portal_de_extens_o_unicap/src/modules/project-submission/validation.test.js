@@ -168,3 +168,10 @@ describe("totalBudget", () => {
     expect(totalBudget([])).toBe(0);
   });
 });
+
+it("identifica o contador que contém fração antes do envio", () => {
+  const result = validateStep("equipe", { bolsistas: 1.5, voluntarios: 2, expectedAudience: 50 });
+  expect(result.ok).toBe(false);
+  expect(result.errors.bolsistas).toMatch(/Bolsistas PIBEX.*número inteiro/);
+  expect(result.errors.voluntarios).toBeUndefined();
+});

@@ -11,7 +11,7 @@ export function validateSubmission(form) {
     if (!Array.isArray(form[field]) || form[field].length > (field === 'attachments' ? 5 : 100)) throw fail(400, 'Revise as listas da proposta.');
   }
   for (const field of ['bolsistas', 'voluntarios', 'expectedAudience']) {
-    if (!Number.isInteger(Number(form[field])) || Number(form[field]) < 0 || Number(form[field]) > 1000000) throw fail(400, 'Quantidades inválidas.');
+    if (!Number.isInteger(Number(form[field])) || Number(form[field]) < 0 || Number(form[field]) > 1000000) throw fail(400, `${({bolsistas:'Bolsistas PIBEX',voluntarios:'Voluntários',expectedAudience:'Público Estimado'})[field]}: informe um número inteiro entre 0 e 1.000.000, sem vírgula ou ponto decimal.`);
   }
   if (form.budget.some(item => !Number.isFinite(Number(item.amount)) || Number(item.amount) < 0 || Number(item.amount) > 1e9)) throw fail(400, 'Orçamento inválido.');
   if (!['cne','forproex','lgpd','autorizacao'].every(key => form.compliance?.[key] === true)) throw fail(400, 'Confirme os itens de conformidade.');

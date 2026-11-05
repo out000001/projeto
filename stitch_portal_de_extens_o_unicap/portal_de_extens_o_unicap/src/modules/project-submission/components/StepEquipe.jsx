@@ -25,6 +25,9 @@ function Counter({ label, description, icon, value, onChange, error }) {
           value={value}
           onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
           min={0}
+          max={1000000}
+          step={1}
+          aria-invalid={error ? true : undefined}
           className="h-8 w-16 border-none bg-transparent text-center text-lg font-bold text-primary outline-none"
         />
         <button
@@ -87,7 +90,7 @@ export default function StepEquipe({ form, updateForm, errors }) {
           icon="payments"
           value={Number(form.bolsistas) || 0}
           onChange={(v) => updateForm({ bolsistas: v })}
-          error={Boolean(errors.team)}
+          error={Boolean(errors.team || errors.bolsistas)}
         />
         <Counter
           label="Voluntários"
@@ -95,7 +98,7 @@ export default function StepEquipe({ form, updateForm, errors }) {
           icon="group_add"
           value={Number(form.voluntarios) || 0}
           onChange={(v) => updateForm({ voluntarios: v })}
-          error={Boolean(errors.team)}
+          error={Boolean(errors.team || errors.voluntarios)}
         />
         <Counter
           label="Público Estimado"
@@ -106,9 +109,10 @@ export default function StepEquipe({ form, updateForm, errors }) {
           error={Boolean(errors.expectedAudience)}
         />
       </div>
-      {(errors.team || errors.expectedAudience) && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
-          {[errors.team, errors.expectedAudience].filter(Boolean).join(" ")}
+      <p className="text-sm text-on-surface-variant">Use números inteiros: por exemplo, 2 bolsistas, 5 voluntários e público de 100 pessoas.</p>
+      {(errors.team || errors.bolsistas || errors.voluntarios || errors.expectedAudience) && (
+        <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          {[errors.team, errors.bolsistas, errors.voluntarios, errors.expectedAudience].filter(Boolean).join(" ")}
         </div>
       )}
 

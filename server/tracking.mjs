@@ -27,11 +27,24 @@ export function createTrackingHandler({auth,db}) {
    const profile=(await db.collection('users').doc(user.uid).get()).data();const manager=profile?.profile==='gestor';
    const body=req.body||{};const id=req.method==='GET'?req.query?.id:body.id;
    if(req.method==='GET'&&!id) {
-    let ids;
-    if(manager) {const snapshot=await db.collection('submissions').select('title','center','status').get();return res.json({items:snapshot.docs.map(d=>({...d.data(),id:d.id}))});}
-    const memberships=await db.collection('_tracking').where('memberIds','array-contains',user.uid).get();ids=memberships.docs.map(d=>d.id);
-    const projects=await Promise.all(ids.map(async id=>({id,...(await db.collection('submissions').doc(id).get()).data()})));
-    return res.json({items:projects.filter(p=>p.title).map(p=>({id:p.id,title:p.title,center:p.center,status:p.status}))});
+    const fields=['title','coordinator','center','grant','status','submission.selectedDeliverables'];
+    let projects,states;
+    if(manager) {
+     projects=(await db.collection('submissions').select(...fields).get()).docs;
+     states=[];
+     for(let offset=0;offset<projects.length;offset+=200)states.push(...await db.getAll(...projects.slice(offset,offset+200).map(p=>db.collection('_tracking').doc(p.id)),{fieldMask:['config','reports']}));
+    } else {
+     states=(await db.collection('_tracking').where('memberIds','array-contains',user.uid).select('config','reports').get()).docs;
+     projects=[];
+     for(let offset=0;offset<states.length;offset+=200)projects.push(...await db.getAll(...states.slice(offset,offset+200).map(p=>db.collection('submissions').doc(p.id)),{fieldMask:fields}));
+    }
+    const stateById=new Map(states.map(doc=>[doc.id,doc.data()]));
+    const items=projects.filter(doc=>doc.exists&&doc.data().title).map(doc=>{
+     const project=doc.data(),state=stateById.get(doc.id)||initialTracking(project);
+     const reports=(state.reports||[]).filter(r=>manager||r.submittedBy===user.uid||(r.status==='pending'&&!r.submittedBy));
+     return {id:doc.id,title:project.title,coordinator:project.coordinator||'',center:project.center||'',grant:project.grant||'',status:project.status||'',startDate:state.config?.startDate||'',endDate:state.config?.endDate||'',pendingReports:reports.filter(r=>['pending','changes_requested'].includes(r.status)).length,awaitingReview:reports.filter(r=>r.status==='received').length};
+    });
+    return res.json({items});
    }
    if(!validId(id)) throw fail(400,'Projeto inválido.');
    const projectRef=db.collection('submissions').doc(id);const ref=db.collection('_tracking').doc(id);

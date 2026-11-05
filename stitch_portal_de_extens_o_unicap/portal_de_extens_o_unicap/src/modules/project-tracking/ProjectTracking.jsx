@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import {Calendar, Person, School} from '../../components/ui/Icons';
@@ -12,16 +12,20 @@ import TrackingPlan from './components/TrackingPlan';
 import TrackingReports from './components/TrackingReports';
 import TrackingOverview from './components/TrackingOverview';
 import TrackingProgress from './components/TrackingProgress';
+import TrackingProjectList from './components/TrackingProjectList';
 
 const tabs = [['overview','Visão geral'],['participants','Participantes'],['frequency','Frequência'],['plan','Cronograma e atividades'],['reports','Relatórios e pareceres']];
 const displayDate = value => value ? new Date(`${value}T12:00:00`).toLocaleDateString('pt-BR') : 'Não definida';
 
 export default function ProjectTracking() {
-  const {items,id,setId,data,loading,busy,error,reload,action} = useTracking();
+  const {items,id,setId,data,loading,busy,error,listLoading,listError,reload,action} = useTracking();
   const [tab,setTab] = useState('frequency');
+  const [switching,setSwitching] = useState(false);
   const [selection,setSelection] = useState(null);
   const [uploading,setUploading] = useState(false);
   const [notice,setNotice] = useState('');
+  const projectHeading=useRef(null);
+  useEffect(()=>{if(id&&!loading&&!switching)projectHeading.current?.focus();},[id,loading,switching]);
   const working = busy || uploading;
   const tracking = data?.tracking;
   const month = tracking ? validMonth(selection?.id === id ? selection.month : currentMonth(), tracking.config) : currentMonth();
@@ -51,25 +55,20 @@ export default function ProjectTracking() {
         <h1 className="font-display text-2xl font-bold tracking-tight text-primary sm:text-3xl">Acompanhamento de projetos</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-on-surface-variant">Acompanhe as atividades, confira as horas e organize as entregas do projeto.</p>
       </div>
-      <Button variant="outline" onClick={reload} disabled={working || !id}>Atualizar dados</Button>
+      <Button variant="outline" onClick={reload} disabled={working || listLoading}>Atualizar dados</Button>
     </div>
-    <label className="max-w-2xl text-sm font-semibold">Projeto
-      <select className="input mt-2" value={id} disabled={working || !items.length} onChange={e=>{setId(e.target.value);setNotice('');}}>
-        {!items.length && <option value="">Nenhum projeto disponível</option>}
-        {items.map(p=><option key={p.id} value={p.id}>{p.title}</option>)}
-      </select>
-    </label>
+    {id && <div className="flex flex-wrap gap-3"><Button variant="outline" disabled={working} onClick={()=>{setId('');setSwitching(false);setNotice('');}}>Todos os projetos</Button><Button variant="outline" disabled={working} aria-expanded={switching} aria-controls="tracking-project-list" onClick={()=>setSwitching(value=>!value)}>{switching?'Fechar busca':'Trocar projeto'}</Button></div>}
+    {(!id || switching) && <TrackingProjectList items={items} loading={listLoading} error={listError} busy={working} onReload={reload} quick={Boolean(id)} onOpen={value=>{setId(value);setSwitching(false);setNotice('');}}/>}
     {error && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg bg-red-50 p-4 text-red-800">{error}<Button variant="outline" onClick={reload} disabled={working}>Recarregar acompanhamento</Button></div>}
     <div role="status" aria-live="polite" className="text-sm text-primary">{loading ? 'Carregando acompanhamento…' : working ? 'Salvando…' : notice}</div>
-    {!loading && !items.length && !error && <Card className="p-6"><p>Você ainda não tem projetos disponíveis para acompanhamento. Gestores podem cadastrar um projeto no painel; alunos precisam se inscrever ou ser vinculados pela gestão.</p></Card>}
-    {data && !loading && <>
+    {id && data && !loading && !switching && <>
       <Card className="p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap gap-2 text-xs font-semibold leading-relaxed">
           <span className="rounded-md bg-secondary-container px-3 py-1.5 text-on-secondary-fixed">{data.project.grant || 'Edital não informado'}</span>
           <span className="inline-flex items-center gap-2 rounded-md bg-surface-container px-3 py-1.5"><Calendar className="h-4 w-4 shrink-0"/> Vigência: {displayDate(tracking.config.startDate)} a {displayDate(tracking.config.endDate)}</span>
         </div>
         <div className="flex flex-col items-start gap-5 lg:flex-row lg:justify-between">
-          <div className="min-w-0 w-full max-w-3xl lg:flex-1"><h2 className="break-words font-display text-2xl font-semibold leading-snug tracking-tight text-primary">{data.project.title}</h2>
+          <div className="min-w-0 w-full max-w-3xl lg:flex-1"><h2 ref={projectHeading} tabIndex={-1} className="break-words font-display text-2xl font-semibold leading-snug tracking-tight text-primary">{data.project.title}</h2>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm leading-relaxed text-on-surface-variant">
               <span className="inline-flex items-start gap-2"><Person className="mt-0.5 h-4 w-4 shrink-0"/>Coordenação: {data.project.coordinator || 'Não informada'}</span>
               <span className="inline-flex items-start gap-2"><School className="mt-0.5 h-4 w-4 shrink-0"/>{data.project.center || 'Centro não informado'}</span>

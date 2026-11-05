@@ -1,0 +1,17 @@
+import {renderHook,waitFor,act} from '@testing-library/react';
+import {MemoryRouter,useLocation} from 'react-router-dom';
+import {it,expect,vi,beforeEach} from 'vitest';
+import useTracking from './useTracking';
+import {portalRequest} from '../../services/portalApi';
+vi.mock('../../services/portalApi',()=>({portalRequest:vi.fn()}));
+beforeEach(()=>{portalRequest.mockReset();portalRequest.mockImplementation(async path=>path==='/api/tracking'?{items:[{id:'one',title:'Primeiro projeto'}]}:{project:{id:new URL(path,'http://local').searchParams.get('id')},tracking:{revision:1}});});
+function view(entry='/tracking'){return renderHook(()=>({tracking:useTracking(),location:useLocation()}),{wrapper:({children})=><MemoryRouter initialEntries={[entry]}>{children}</MemoryRouter>});}
+it('loads the project catalogue without automatically opening the first project',async()=>{const{result}=view();await waitFor(()=>expect(result.current.tracking.listLoading).toBe(false));expect(result.current.tracking.id).toBe('');expect(result.current.tracking.data).toBeNull();expect(result.current.tracking.loading).toBe(false);expect(portalRequest).toHaveBeenCalledTimes(1);});
+it('opens and closes projects while preserving catalogue filters',async()=>{const{result}=view('/tracking?q=marcia&center=Saude&page=2');await waitFor(()=>expect(result.current.tracking.listLoading).toBe(false));act(()=>result.current.tracking.setId('one'));await waitFor(()=>expect(result.current.tracking.data?.project.id).toBe('one'));expect(new window.URLSearchParams(result.current.location.search).get('q')).toBe('marcia');act(()=>result.current.tracking.setId(''));await waitFor(()=>expect(result.current.tracking.data).toBeNull());expect(new window.URLSearchParams(result.current.location.search).get('page')).toBe('2');});
+it('retries a failed catalogue request',async()=>{portalRequest.mockRejectedValueOnce(new Error('Sem conexão'));const{result}=view();await waitFor(()=>expect(result.current.tracking.listError).toBe('Sem conexão'));await act(()=>result.current.tracking.reload());expect(result.current.tracking.listError).toBe('');expect(result.current.tracking.items).toHaveLength(1);});
+it('ignores a detail response from a project already closed',async()=>{let resolve;portalRequest.mockImplementation(path=>path==='/api/tracking'?Promise.resolve({items:[]}):new Promise(done=>{resolve=done;}));const{result}=view('/tracking?id=one');await waitFor(()=>expect(resolve).toBeDefined());act(()=>result.current.tracking.setId(''));await act(async()=>resolve({project:{id:'one'},tracking:{revision:1}}));expect(result.current.tracking.data).toBeNull();expect(result.current.tracking.loading).toBe(false);});
+it('updates pending counts after saving without downloading the whole catalogue again',async()=>{
+  portalRequest.mockImplementation(async(path,method)=>method==='POST'?{project:{id:'one'},tracking:{revision:2,config:{startDate:'2026-01-01',endDate:'2026-12-31'},reports:[{status:'received'},{status:'pending'}]}}:path==='/api/tracking'?{items:[{id:'one',title:'Primeiro projeto',pendingReports:2}]}:{project:{id:'one'},tracking:{revision:1}});
+  const{result}=view('/tracking?id=one');await waitFor(()=>expect(result.current.tracking.data?.project.id).toBe('one'));await act(()=>result.current.tracking.action({action:'report-submit'}));expect(result.current.tracking.items[0].pendingReports).toBe(1);expect(result.current.tracking.items[0].awaitingReview).toBe(1);
+  expect(portalRequest.mock.calls.filter(([path,method])=>path==='/api/tracking'&&!method)).toHaveLength(1);
+});

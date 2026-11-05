@@ -27,11 +27,15 @@ try {
  assert.equal((await request('projects','manager','POST',{id,form})).code,201);
  assert.equal((await request('projects','manager','PATCH',{id,action:'publish',info:{local:'Boa Vista',courses:'Todos',hours:'120h',deadline:'2028-12-30'}})).code,200);
  assert.equal((await request('tracking','student','GET',{}, {id})).code,403);
+ assert.equal((await request('tracking',null)).code,401);assert.equal((await request('tracking','student')).value.items.length,0);
+ await db.collection('submissions').doc('unrelated-project').set({title:'Projeto de outra equipe',coordinator:'Coordenação restrita',center:'Outro centro',grant:'Outro edital',status:'analysis'});
+ const catalogue=(await request('tracking','manager')).value.items;assert.equal(catalogue.length,2);assert.equal(catalogue.find(p=>p.id===id).pendingReports,1);assert.equal(catalogue.find(p=>p.id===id).coordinator,'manager');
  const first=await request('portal','student','POST',{projectId:id,action:'enroll'},{resource:'enrollments'});assert.equal(first.value.enrollment.status,'confirmed');
  await request('portal','student','POST',{projectId:id,action:'enroll'},{resource:'enrollments'});assert.equal((await db.collection('projects').doc(id).get()).data().spotsLeft,0);
  const waiting=await request('portal','other','POST',{projectId:id,action:'enroll'},{resource:'enrollments'});assert.equal(waiting.value.enrollment.status,'waitlist');
  assert.equal((await change('configure',{config:{startDate:'2026-01-01',endDate:'2028-12-31',totalHours:120,monthlyHours:30,beneficiaries:12}})).code,200);
  const studentId=(await view()).tracking.participants.find(p=>p.userId==='student').id;
+ const studentCatalogue=(await request('tracking','student')).value.items;assert.equal(studentCatalogue.length,1);assert.equal(studentCatalogue[0].id,id);assert.equal(studentCatalogue[0].startDate,'2026-01-01');assert.equal(studentCatalogue[0].pendingReports,1);assert.equal(studentCatalogue[0].submission,undefined);assert.equal(studentCatalogue[0].participants,undefined);
  assert.equal((await change('hours',{month:'2026-11',participantId:studentId,hours:18},'student')).code,403);
  const before=(await view()).tracking.revision;
  assert.equal((await change('hours',{month:'2026-11',participantId:studentId,hours:18})).code,200);
@@ -52,6 +56,7 @@ try {
  const report=(await view()).tracking.reports.find(r=>r.submittedBy==='student');assert.equal(report.id,planned.id);assert.equal((await view()).tracking.reports.length,1);
  assert.equal((await change('report-submit',{reportId:report.id,label:'Tentativa de substituição',detail:'Outro estudante não pode substituir este relatório.',attachments:[]},'other')).code,403);
  assert.equal((await view('other')).tracking.reports.length,0);
+ assert.equal((await request('tracking','other')).value.items.find(p=>p.id===id).awaitingReview,0);
  assert.equal((await request('projects','student','POST',{id,action:'upload',attachment:{id:fileId,part:0,data:bytes.toString('base64')}})).code,409);
  assert.equal((await change('report-review',{reportId:report.id,status:'approved',comment:'Conferido.'})).code,200);
  assert.equal((await db.collection('submissions').doc(id).get()).data().pendingReports,(await view()).tracking.reports.filter(r=>['pending','changes_requested'].includes(r.status)).length);

@@ -14,9 +14,9 @@ export const DEFAULT_SETTINGS = {
 };
 
 export const SESSION_TIMEOUT_MINUTES = [15, 30, 60, 120];
-export const DENSITY_IDS = ["confortavel", "compacta"];
-export const DEADLINE_ALERT_MIN_DAYS = 1;
-export const DEADLINE_ALERT_MAX_DAYS = 30;
+const DENSITY_IDS = ["confortavel", "compacta"];
+const DEADLINE_ALERT_MIN_DAYS = 1;
+const DEADLINE_ALERT_MAX_DAYS = 30;
 
 const BOOLEAN_KEYS = ["notifyDeadlines", "notifyHomologacoes", "notifyEditais", "weeklyDigest"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

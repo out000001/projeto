@@ -56,7 +56,9 @@ test('publication exposes only catalogue fields and can be removed atomically',a
 test('attachment chunks stay below Firestore document limits and download intact',async()=>{
  const {request,data}=setup();const fileId='attachment-test-12345';const bytes=Buffer.alloc(2*1024*1024,42);bytes.write('%PDF-1.4');
  assert.equal((await request('POST',{id,action:'upload',attachment:{id:fileId,part:0,data:bytes.toString('base64')}})).code,200);
- for(const[key,value]of data) if(key.includes('/data/')) assert.ok(JSON.stringify(value).length<1000000);
+ const chunks=[...data].filter(([key])=>key.includes('/data/'));
+ assert.ok(chunks.length>0,'the upload must create at least one data shard');
+ for(const[,value]of chunks) assert.ok(JSON.stringify(value).length<1000000);
  const f={...form(),attachments:[{id:fileId,name:'test.pdf',type:'application/pdf',size:bytes.length,parts:1}]};
  assert.equal((await request('POST',{id,form:f})).code,201);
  const result=await request('GET',{}, {id,attachment:fileId,part:'0'});

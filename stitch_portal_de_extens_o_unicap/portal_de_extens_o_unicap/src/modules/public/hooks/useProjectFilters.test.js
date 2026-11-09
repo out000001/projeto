@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { applyProjectFilters } from "./useProjectFilters";
-import { projects } from "../data/projects";
+import { projects } from "../../../test/fixtures/publicProjects";
 
 describe("applyProjectFilters — Sprint 2 vitrine", () => {
   it("retorna todos os projetos sem critérios", () => {

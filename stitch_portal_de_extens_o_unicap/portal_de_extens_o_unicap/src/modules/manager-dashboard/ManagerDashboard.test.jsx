@@ -3,7 +3,7 @@ import { render, screen, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import ManagerDashboard from "./ManagerDashboard";
-import { dashboardProjects } from "./data/dashboardData";
+import { dashboardProjects } from "../../test/fixtures/dashboardProjects";
 import { PAGE_SIZE, computeKpis } from "./dashboardLogic";
 
 vi.mock("../../services/projectApi", () => ({ fetchProjectDetails: vi.fn(async id => ({ item: dashboardProjects.find(p=>p.id===id) })) }));
@@ -154,11 +154,8 @@ describe("ManagerDashboard", () => {
     const kpis = computeKpis(dashboardProjects);
 
     expect(screen.queryByText(/prazo[s]? vencido[s]?/i)).not.toBeInTheDocument();
-    if (kpis.pendingReports > 0) {
-      expect(
-        screen.getAllByText(/relatório[s]? pendente[s]?/i).length
-      ).toBeGreaterThan(0);
-    }
+    expect(kpis.pendingReports).toBeGreaterThan(0);
+    expect(screen.getAllByText(/relatório[s]? pendente[s]?/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/aguardando parecer/i)).toBeInTheDocument();
   });
 

@@ -2,7 +2,9 @@
   "name": "projeto",
   "version": "1.0.0",
   "scripts": {
-    "test": "node --test server/*.test.mjs"
+    "test": "node --test server/*.test.mjs",
+    "lint:server": "node server/lint-server.mjs",
+    "audit:quality": "node server/quality-audit.mjs"
   },
   "repository": {
     "type": "git",

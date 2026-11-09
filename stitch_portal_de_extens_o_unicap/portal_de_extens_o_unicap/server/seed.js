@@ -2,7 +2,7 @@
 // Os projetos reaproveitam os dados puros da vitrine (sem React): quando o
 // front passar a consumir esta API, o mock deixa de ser a fonte do navegador.
 
-import { projects as vitrineProjects } from "../src/modules/public/data/projects.js";
+import { projects as vitrineProjects } from "../src/test/fixtures/publicProjects.js";
 
 // Credenciais de demonstração — trocar por hash + banco real nas próximas entregas.
 export const users = [

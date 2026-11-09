@@ -12,26 +12,20 @@ import {
   buildDeadlines,
   buildProjectsCsv
 } from "./dashboardLogic";
-import { dashboardProjects, committeeDeadlines } from "./data/dashboardData";
+import { dashboardProjects, committeeDeadlines } from "../../test/fixtures/dashboardProjects";
 
 const today = new Date("2025-03-20T12:00:00");
 
 describe("computeKpis", () => {
   it("totaliza projetos, estudantes e impacto a partir do registro", () => {
-    const kpis = computeKpis(dashboardProjects);
-    const students = dashboardProjects.reduce(
-      (sum, p) => sum + p.scholarships + p.volunteers,
-      0
-    );
-
-    expect(kpis.total).toBe(dashboardProjects.length);
-    expect(kpis.students).toBe(students);
-    expect(kpis.impact).toBe(
-      dashboardProjects.reduce((sum, p) => sum + p.impact, 0)
-    );
-    expect(kpis.pendingReports).toBe(
-      dashboardProjects.reduce((sum, p) => sum + p.pendingReports, 0)
-    );
+    const projects = [
+      {status:'active',scholarships:2,volunteers:1,impact:100,pendingReports:2,center:'Direito'},
+      {status:'completed',scholarships:0,volunteers:3,impact:20,pendingReports:0,center:'Saúde'}
+    ];
+    expect(computeKpis(projects)).toEqual({
+      total:2,activeCount:1,students:6,scholarships:2,volunteers:4,
+      impact:120,pendingReports:2,activeCenter:'Direito'
+    });
   });
 
   it("conta apenas projetos ativos como ativos", () => {
@@ -233,4 +227,10 @@ describe("buildProjectsCsv — exportação do Relatório MEC", () => {
     expect(rows).toHaveLength(filtered.length + 1);
     expect(rows[1]).toContain("Ciências Jurídicas");
   });
+});
+
+it('does not substitute demonstration data when projects are absent',()=>{
+ expect(computeKpis().total).toBe(0);
+ expect(filterProjects()).toEqual([]);
+ expect(buildDeadlines()).toEqual([]);
 });

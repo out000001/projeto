@@ -5,11 +5,6 @@ export const PROFILE_LABELS = {
   estudante: "Estudante / Comunidade"
 };
 
-export const DENSITY_LABELS = {
-  confortavel: "Confortável",
-  compacta: "Compacta"
-};
-
 export const NOTIFICATION_OPTIONS = [
   {
     id: "notifyDeadlines",

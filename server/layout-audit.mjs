@@ -5,7 +5,7 @@ export async function auditLayout(page,name,results,{widths=[320,390,768,1024,14
  for(const width of widths) {
   await page.setViewportSize({width,height:900});
   await page.evaluate(()=>{document.documentElement.style.fontSize='';document.documentElement.dir='ltr';window.scrollTo({top:0,left:0,behavior:'instant'});});
-  await page.waitForTimeout(60);
+  await page.evaluate(()=>new Promise(resolve=>window.requestAnimationFrame(()=>window.requestAnimationFrame(resolve))));
   results.push({name,width,...await inspect(page)});
   if(width===320||width===1440)await page.screenshot({path:`/tmp/portal-layout-audit/${name}-${width}.png`,fullPage:!(await page.getByRole('dialog').count())});
  }

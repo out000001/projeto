@@ -1,10 +1,9 @@
-import { dashboardProjects, committeeDeadlines } from "./data/dashboardData";
 import { toCsv } from "../../utils/download";
 
 // Regras puras do painel gestor — sem React, para testes de unidade diretos.
 
 export const PAGE_SIZE = 5;
-export const URGENT_DAYS = 7;
+const URGENT_DAYS = 7;
 
 /** Agrupa lista de projetos em um único centro, se houver; senão retorna null. */
 function uniqueCenter(projects) {
@@ -15,7 +14,7 @@ function uniqueCenter(projects) {
 
 /** Indicadores institucionais calculados a partir do registro real. */
 export function computeKpis(projects) {
-  const list = projects ?? dashboardProjects;
+  const list = projects ?? [];
   const active = list.filter((p) => p.status === "active");
   const pendingReports = list.reduce((sum, p) => sum + (p.pendingReports || 0), 0);
 
@@ -56,7 +55,7 @@ export function matchesSearch(project, term) {
 /** Filtros combinados: busca + centro + linha + status + edital. */
 export function filterProjects(projects, filters = {}) {
   const { search = "", center = "all", thematicLine = "all", status = "all", grant = "all" } = filters;
-  return (projects ?? dashboardProjects).filter((project) => {
+  return (projects ?? []).filter((project) => {
     if (!matchesSearch(project, search)) return false;
     if (center !== "all" && project.center !== center) return false;
     if (thematicLine !== "all" && project.thematicLine !== thematicLine) return false;
@@ -109,7 +108,7 @@ export function deadlineStatus(deadline, today = new Date()) {
   return { ...deadline, days, urgency: "upcoming" };
 }
 
-export function buildDeadlines(deadlines = committeeDeadlines, today = new Date()) {
+export function buildDeadlines(deadlines = [], today = new Date()) {
   return deadlines
     .map((deadline) => deadlineStatus(deadline, today))
     .sort((a, b) => a.days - b.days);

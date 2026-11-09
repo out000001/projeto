@@ -1,5 +1,5 @@
 const {test,expect}=require('../../stitch_portal_de_extens_o_unicap/portal_de_extens_o_unicap/node_modules/@playwright/test');
-const http=require('node:http');const fs=require('node:fs/promises');
+const http=require('node:http');
 const BASE='http://127.0.0.1:5173';const PASSWORD='Teste-Portal-2026!';const KEY='qa-manager-key-only-emulator';
 let db,auth,app,server,manager,student,other,guest,projectId,studentUid;
 const TITLE='Inclusão Digital e Cidadania — Projeto de teste Playwright';

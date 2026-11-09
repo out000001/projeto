@@ -47,7 +47,7 @@ export default [
       "react/react-in-jsx-scope": "off",
       // Sprint 6 fará a padronização completa; novos componentes já usam prop-types.
       "react/prop-types": "warn",
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }]
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }]
     }
   },
   prettier

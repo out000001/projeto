@@ -1,5 +1,5 @@
 import { doc, runTransaction } from "firebase/firestore";
-import { projects } from "../src/modules/public/data/projects.js";
+import { projects } from "../src/test/fixtures/publicProjects.js";
 
 // Only public catalogue data; never imports demo users or passwords.
 // Existing documents are preserved, including when this command is repeated.

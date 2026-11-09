@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { SessionProvider } from "../../contexts/SessionContext";
 import PublicLanding from "./PublicLanding";
-import { projects } from "./data/projects";
+import { projects } from "../../test/fixtures/publicProjects";
 import * as api from "../../services/api";
 
 // Sprint 11: a vitrine lê /api/projects. Os testes rodam sobre o mock de

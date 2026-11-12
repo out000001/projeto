@@ -4,7 +4,7 @@ export async function finalizeFiles(db,uid,projectId,files=[]) {
   if(!Array.isArray(files)||files.length>5) throw fail(400,'Até 5 anexos são permitidos.');
   const result=[];
   for(const a of files) {
-    if(!validId(a.id)||typeof a.name!=='string'||a.name.length>200||!['application/pdf','image/png','image/jpeg'].includes(a.type)||!Number.isInteger(a.parts)||a.parts<1||a.parts>5||!Number.isInteger(a.size)||a.size<1||a.size>10*1024*1024) throw fail(400,'Anexo inválido. Selecione o arquivo novamente.');
+    if(!a||typeof a!=='object'||Array.isArray(a)||!validId(a.id)||typeof a.name!=='string'||a.name.length>200||!['application/pdf','image/png','image/jpeg'].includes(a.type)||!Number.isInteger(a.parts)||a.parts<1||a.parts>5||!Number.isInteger(a.size)||a.size<1||a.size>10*1024*1024) throw fail(400,'Anexo inválido. Selecione o arquivo novamente.');
     const storageId=`${uid}-${projectId}-${a.id}`;
     const root=db.collection('_projectFiles').doc(storageId);
     await db.runTransaction(async tx=>{

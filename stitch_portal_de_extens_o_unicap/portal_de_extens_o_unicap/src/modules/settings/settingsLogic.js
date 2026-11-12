@@ -24,8 +24,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function validateSettings(settings) {
   const errors = {};
 
-  const alternateEmail = (settings?.alternateEmail || "").trim();
-  if (alternateEmail && !EMAIL_RE.test(alternateEmail)) {
+  const alternateEmail = typeof settings?.alternateEmail === "string" ? settings.alternateEmail.trim() : null;
+  if (alternateEmail === null || (alternateEmail && !EMAIL_RE.test(alternateEmail))) {
     errors.alternateEmail = "Informe um e-mail válido, como nome@dominio.br.";
   }
 

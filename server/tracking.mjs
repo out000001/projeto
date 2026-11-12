@@ -62,6 +62,7 @@ export function createTrackingHandler({auth,db}) {
     return res.json(trackingView(project,state,user,manager));
    }
    if(!manager&&body.action!=='report-submit') throw fail(403,'Apenas gestores podem alterar o acompanhamento.');
+   if(body.action==='participant-save'&&body.participant?.email!==undefined&&typeof body.participant.email!=='string') throw fail(400,'E-mail do participante inválido.');
    let linkedUid=null;
    if(body.action==='participant-save'&&body.participant?.email) {
     const email=body.participant.email.trim().toLowerCase();

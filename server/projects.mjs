@@ -88,7 +88,7 @@ export function createProjectsHandler({auth,db}) {
       if (body.action==='upload') {
         if(!manager) {
           const membership=(await db.collection('_tracking').doc(id).get()).data();
-          if(!membership?.memberIds?.includes(user.uid)) throw fail(403,'Você não faz parte deste projeto.');
+          if(!membership?.participants?.some(participant=>participant.userId===user.uid&&participant.active)) throw fail(403,'Sua participação está inativa ou você não faz parte deste projeto.');
         }
         const a=body.attachment;
         if (!validId(a?.id) || !Number.isInteger(a.part) || a.part<0 || a.part>=5 || typeof a.data!=='string' || a.data.length>2800000) throw fail(400,'Parte de anexo inválida.');

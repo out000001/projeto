@@ -4,7 +4,8 @@
   "scripts": {
     "test": "node --test server/*.test.mjs",
     "lint:server": "node server/lint-server.mjs",
-    "audit:quality": "node server/quality-audit.mjs"
+    "audit:quality": "node server/quality-audit.mjs",
+    "test:final": "node --max-old-space-size=512 server/final-validation.mjs"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,6 @@
   "homepage": "https://github.com/out000001/projeto#readme",
   "private": true,
   "dependencies": {
-    "firebase-admin": "13.6.0"
+    "firebase-admin": "14.5.1"
   }
 }

@@ -23,6 +23,7 @@ smoke = read('smoke-results.json')
 root_audit = read('root-audit-after.json')
 app_audit = read('app-audit-after.json')
 headers = read('production-headers-after.json')
+production_smoke = read('production-smoke-results.json')
 sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
 pdfmetrics.registerFont(TTFont('DejaVu', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
 pdfmetrics.registerFont(TTFont('DejaVu-Bold', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'))
@@ -143,10 +144,11 @@ page('5. Smoke Test após as correções')
 p('Chromium headless, uma execução por caso, sem retries. Fluxos autenticados usam contas e banco dos emuladores; testes públicos de produção apenas consultam páginas e rejeição de acesso anônimo. Não houve escrita de dados reais na produção.')
 p(f'Resultado: {passed}/{len(tests)} casos aprovados. A suíte inclui cadastro/login dos dois perfis, proposta em seis etapas, publicação, inscrição e espera, acompanhamento, participantes, horas, homologação, anexos, relatórios/revisões, CSV, configurações, parcerias, cancelamento e logout. O caso de responsividade agrega 125 combinações de tela/fluxo; isso não corresponde a 125 casos independentes no contador do Playwright.')
 table([['Caso Playwright', 'Resultado']] + [[title, 'PASS' if test['status'] == 'expected' else test['status']] for title, test in tests], [440, 60])
+p('Após a publicação do commit avaliado, os quatro casos públicos foram repetidos: ' + str(production_smoke['stats']['expected']) + '/4 aprovados em ' + production_smoke['stats']['startTime'] + '. Esses casos verificam páginas públicas, visibilidade de senha, redirecionamento de visitantes e respostas 401; não validam operações autenticadas no banco real.')
 p('Validações complementares: lint do servidor sem erros/avisos, lint do aplicativo aprovado, 16 testes Node e 210 testes Vitest aprovados. Build concluído; permanece aviso sobre tamanho do bundle, que não é falha de compilação e merece otimização futura. Não houve ensaio em Safari/Firefox ou dispositivos físicos.')
 page('6. Evidências e reprodução')
 p('Evidências preservadas', 'Heading2')
-for name in ['before-fixes.json', 'after-fixes.json', 'root-audit.json', 'root-audit-after.json', 'app-audit.json', 'app-audit-after.json', 'production-headers-before.json', 'production-headers-after.json', 'smoke-results.json']:
+for name in ['before-fixes.json', 'after-fixes.json', 'root-audit.json', 'root-audit-after.json', 'app-audit.json', 'app-audit-after.json', 'production-headers-before.json', 'production-headers-after.json', 'smoke-results.json', 'production-smoke-results.json', 'tool-versions.json']:
     p('reports/final-tests/' + name)
 p('O roteiro e os comandos estão em docs/final-validation.md. O gerador de carga/segurança está em server/final-validation.mjs; os testes de regressão em server/security-input.test.mjs. A suíte de navegador está em server/playwright. Este PDF é gerado por server/generate-final-report.py a partir dos resultados, sem inventar testes ausentes.')
 p('Sequência observada', 'Heading2')
@@ -155,7 +157,8 @@ table([
     ['Rodada inicial', before['date']],
     ['Rodada final: carga → estresse → segurança', current['date']],
     ['Fim da rodada final', current.get('completed', '')],
-    ['Smoke Test final', smoke['stats']['startTime']],
+    ['Smoke Test após correções, antes de publicar', smoke['stats']['startTime']],
+    ['Verificação pública após publicação', production_smoke['stats']['startTime']],
     ['Geração do relatório', datetime.now(ZoneInfo('UTC')).isoformat()],
 ], [245, 255])
 p('Parecer final', 'Heading2')

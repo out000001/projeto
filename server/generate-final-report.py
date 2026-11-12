@@ -78,7 +78,7 @@ table([
     ['Loading Test', '4 níveis; critério local p95 ≤ 1.500 ms e nenhuma resposta inesperada.'],
     ['Stress Testing', 'Até 120 requisições simultâneas. Ponto exato de ruptura não atingido dentro do teto.'],
     ['Security Testing', f"Inicial: {sum(x['pass'] for x in before['security'])}/24. Após correções: {sum(x['pass'] for x in current['security'])}/24."],
-    ['Regressão', '16 testes Node e 210 testes do aplicativo aprovados; lint e build concluídos.'],
+    ['Regressão', '18 testes Node e 210 testes do aplicativo aprovados; lint e build concluídos.'],
     ['Smoke Test', f'{passed}/{len(tests)} casos Playwright aprovados, incluindo verificações de layout e fluxos autenticados no emulador.'],
     ['Dependências', f"Servidor: {root_audit['metadata']['vulnerabilities']['total']} alertas. Aplicativo/ferramentas: {len(app_audit)} pacotes com alertas; ver triagem."],
 ], [115, 385])
@@ -114,6 +114,7 @@ table([
     ['E-mail numérico de participante', '503', 'Validação explícita de string; retorna 400.'],
     ['E-mail alternativo numérico', '503', 'Validação sem chamar trim em tipos inválidos; retorna 400.'],
     ['Aluno com participação inativa envia anexo', '200', 'Upload exige participante ativo do projeto; retorna 403.'],
+    ['SDK e runtime Vercel: require() de módulo ESM', '500', 'jose 5.x no jwks-rsa; import reproduzido com ESM desativado e chave RSA verificada localmente. Reteste de segurança online.'],
     ['Cabeçalhos defensivos ausentes', 'Ausentes', 'nosniff, DENY, Referrer-Policy e CSP parcial adicionados; verificação de produção após publicação.'],
 ], [210, 60, 230])
 p('Cinco testes Node de regressão cobrem essas entradas e a permissão de upload. Histórico de consulta de participantes arquivados é preservado; a restrição nova atua em envio de novos arquivos.')
@@ -144,7 +145,7 @@ p('Chromium headless, uma execução por caso, sem retries. Todos os casos desta
 p(f'Resultado: {passed}/{len(tests)} casos aprovados. A suíte inclui cadastro/login dos dois perfis, proposta em seis etapas, publicação, inscrição e espera, acompanhamento, participantes, horas, homologação, anexos, relatórios/revisões, CSV, configurações, parcerias, cancelamento e logout. O caso de responsividade agrega 125 combinações de tela/fluxo; isso não corresponde a 125 casos independentes no contador do Playwright.')
 table([['Caso Playwright', 'Resultado']] + [[title, 'PASS' if test['status'] == 'expected' else test['status']] for title, test in tests], [440, 60])
 p('Uma rodada anterior à orientação de executar apenas segurança online incluía quatro verificações públicas. Ela foi preservada separadamente como histórico; não integra o resultado do Smoke Test local apresentado aqui.')
-p('Validações complementares: lint do servidor sem erros/avisos, lint do aplicativo aprovado, 16 testes Node e 210 testes Vitest aprovados. Build concluído; permanece aviso sobre tamanho do bundle, que não é falha de compilação e merece otimização futura. Não houve ensaio em Safari/Firefox ou dispositivos físicos.')
+p('Validações complementares: lint do servidor sem erros/avisos, lint do aplicativo aprovado, 18 testes Node e 210 testes Vitest aprovados. Build concluído; permanece aviso sobre tamanho do bundle, que não é falha de compilação e merece otimização futura. Não houve ensaio em Safari/Firefox ou dispositivos físicos.')
 page('6. Evidências e reprodução')
 p('Evidências preservadas', 'Heading2')
 for name in ['before-fixes.json', 'after-fixes.json', 'root-audit.json', 'root-audit-after.json', 'app-audit.json', 'app-audit-after.json', 'production-headers-before.json', 'production-headers-after.json', 'smoke-results.json', 'tool-versions.json']:

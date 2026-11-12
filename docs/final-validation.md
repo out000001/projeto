@@ -41,3 +41,7 @@ O teto de 120 requisições simultâneas não equivale a 120 pessoas. Se não oc
 ## Triagem de dependências após as atualizações
 
 A auditoria da API de produção (raiz, Firebase Admin 14.5.1) ficou sem alertas. No aplicativo restaram quatro pacotes com alertas moderados, ligados ao CLI `firebase-tools`: `@opentelemetry/core` 1.x via Pub/Sub, `glob` 10.x, `minimatch` 9.x via glob e `uuid` 9.x via gaxios. As versões corrigidas exigem mudanças de versões principais nesses caminhos. Não foram aplicados overrides incompatíveis para mascarar os avisos: permanecem pendentes de atualização compatível dos pacotes responsáveis. Nenhum alerta alto/crítico permaneceu na auditoria final registrada. Isso não certifica ausência de vulnerabilidades desconhecidas.
+
+## Compatibilidade do runtime Vercel
+
+A atualização do Firebase Admin revelou erro `ERR_REQUIRE_ESM` em `jwks-rsa` ao carregar `jose` 6 no runtime da Vercel, que desativa require de ESM. Foi reproduzido localmente com `--no-experimental-require-module`. O override específico `jwks-rsa → jose ^5.10.0` mantém os métodos de JWK usados pelo SDK com suporte CommonJS. Há testes de importação com essa restrição e verificação RSA com chave JWK sem rede. A auditoria do servidor permanece sem alertas conhecidos.

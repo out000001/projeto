@@ -1,3 +1,7 @@
+# Escopo atual: Smoke Test somente local
+
+Por orientação do solicitante, a configuração padrão exclui `production.spec.cjs`. Os 25 casos locais usam o aplicativo local e emuladores. Apenas verificações de segurança podem ocorrer online. As referências abaixo a 29 casos ou checagens públicas descrevem a suíte anterior a essa restrição.
+
 # Playwright platform suite
 
 Run from the repository root with the app dependencies and Playwright Chromium installed:

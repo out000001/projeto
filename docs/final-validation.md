@@ -20,7 +20,7 @@ A execução registra `reports/final-tests/ordered-results.json`, na ordem:
 2. Estresse limitado: 40, 80 e 120 simultâneas; interrupção acima de 700 MB de RSS ou mais de 50% de respostas inesperadas. Depois, indisponibilidade injetada na interface do banco (503) e restauração (200).
 3. Segurança: 24 verificações de autenticação, autorização, regras do Firestore, validação, concorrência e limites de tentativas.
 4. Corrigir os achados e repetir a validação. Executar testes unitários, lint e build.
-5. Smoke Test: executar a suíte Playwright descrita em `docs/playwright-platform-tests.md`, com um único conjunto de emuladores, após as correções. Quatro casos de produção são apenas leitura; os fluxos autenticados usam emuladores.
+5. Smoke Test: executar a suíte Playwright descrita em `docs/playwright-platform-tests.md`, com um único conjunto de emuladores, após as correções. Use `--grep-invert Produção` para excluir os quatro casos de produção. Carga, estresse e Smoke Test devem ocorrer somente localmente; apenas verificações de segurança podem usar o ambiente online, conforme orientação do solicitante.
 
 Os arquivos `before-fixes.json` e `after-fixes.json` preservam as duas rodadas. A auditoria de dependências usa `npm audit --omit=dev --json` na raiz e `bun audit --json` no aplicativo, cujo lock oficial é `bun.lock`.
 

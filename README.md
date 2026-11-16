@@ -1,7 +1,8 @@
 Alunos: Guilherme Marques 
 João Gabriel Coutinho
 João Marcos Pessoa
-UNICAP-7mK9-xR4p-Q8vN-2026
+
+Senha gestor: UNICAP-7mK9-xR4p-Q8vN-2026
 
 Cadastro do aluno - email não enviado, porém ainda foi possível acessar sem a confirmação.
 

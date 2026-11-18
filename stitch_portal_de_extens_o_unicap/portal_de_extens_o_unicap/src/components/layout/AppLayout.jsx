@@ -59,7 +59,11 @@ export default function AppLayout({ children }) {
       <header ref={headerRef} className="sticky top-0 z-40 border-b border-surface-container-high bg-surface-container-lowest/90 backdrop-blur-xl px-6 py-3 shadow-sm">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="font-display text-xl font-bold text-primary tracking-tight">UNICAP</span>
+            <Link
+              to={profile === "gestor" ? "/dashboard" : "/public"}
+              aria-label={profile === "gestor" ? "UNICAP — ir para o Painel Gestor" : "UNICAP — ir para a Vitrine de Projetos"}
+              className="rounded font-display text-xl font-bold text-primary tracking-tight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            >UNICAP</Link>
             <span className="hidden sm:inline text-label-sm text-on-surface-variant">
               {profile === "gestor" ? "Área de Gestão" : "Área Pública"}
             </span>

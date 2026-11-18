@@ -1,0 +1,12 @@
+import {it,expect,vi} from 'vitest';
+import {render,screen} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {MemoryRouter} from 'react-router-dom';
+import AccountNotices from './AccountNotices';
+const notices=[{id:'reviews-project',label:'Projeto teste: 1 relatório(s) aguardando parecer.',href:'/tracking?id=project'},{id:'weekly',label:'Resumo dos últimos 7 dias: 1 projeto(s) com atualizações.',href:'/tracking'}];
+function view(props={}){return render(<MemoryRouter><header style={{backdropFilter:'blur(10px)'}}><AccountNotices open onClose={()=>{}} notices={notices} loading={false} error="" onRefresh={()=>{}} {...props}/></header></MemoryRouter>);}
+it('renders outside the sticky header and separates actions from summaries',()=>{const{container}=view();expect(container.querySelector('header [role="dialog"]')).toBeNull();expect(screen.getByRole('dialog')).toHaveAccessibleName('Avisos da sua conta');expect(screen.getByRole('region',{name:'Ações e prazos'})).toBeInTheDocument();expect(screen.getByRole('region',{name:'Atualizações e resumos'})).toBeInTheDocument();expect(screen.getByText('Projeto teste: 1 relatório aguardando parecer.')).toBeInTheDocument();expect(screen.getByRole('status')).toHaveTextContent('2 avisos disponíveis');});
+it('opens the real notice destination and closes the dialog',async()=>{const close=vi.fn();view({onClose:close});const link=screen.getByRole('link',{name:/Revisar relatórios/});expect(link).toHaveAttribute('href','/tracking?id=project');await userEvent.click(link);expect(close).toHaveBeenCalledOnce();});
+it('shows an empty state with settings access when no notices exist',()=>{view({notices:[]});expect(screen.getByText('Nenhum aviso por enquanto')).toBeInTheDocument();expect(screen.getByRole('link',{name:'Configurar meus avisos'})).toHaveAttribute('href','/settings');});
+it('reports loading without prematurely claiming there are no notices',()=>{view({notices:[],loading:true});expect(screen.getByRole('status')).toHaveTextContent('Atualizando avisos');expect(screen.queryByText('Nenhum aviso por enquanto')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Atualizar avisos'})).toBeDisabled();});
+it('provides retry after a failed refresh',async()=>{const retry=vi.fn();view({error:'Falha de conexão',onRefresh:retry});expect(screen.getByRole('alert')).toHaveTextContent('Falha de conexão');await userEvent.click(screen.getByRole('button',{name:'Tentar novamente'}));expect(retry).toHaveBeenCalledOnce();});

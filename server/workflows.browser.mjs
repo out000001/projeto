@@ -29,8 +29,9 @@ try {
  browser=await chromium.launch({args:['--no-sandbox']});
  async function pageFor(actor){
   const page=await browser.newPage({viewport:{width:390,height:844},acceptDownloads:true});if(actor==='student')await page.clock.install();
-  await page.route('**/src/services/api.js',route=>route.fulfill({contentType:'application/javascript',body:`const listeners=new Set();let current={user:{id:'${actor}',name:'${names[actor]}',profile:'${actor==='manager'?'gestor':'estudante'}'}};export const observeSession=cb=>{listeners.add(cb);queueMicrotask(()=>cb(current));return ()=>listeners.delete(cb);};export const logoutRequest=async()=>{current=null;listeners.forEach(cb=>cb(null));};export const loginRequest=async()=>{};export const fetchProjects=async()=>(await fetch('/__catalogue')).json();`}));
-  await page.route('**/src/services/firebase.js',route=>route.fulfill({contentType:'application/javascript',body:`export const auth={currentUser:{getIdToken:async()=>'${actor}'}};`}));
+ await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
+  await page.route('**/src/services/api.js*',route=>route.fulfill({contentType:'application/javascript',body:`const listeners=new Set();let current={user:{id:'${actor}',name:'${names[actor]}',profile:'${actor==='manager'?'gestor':'estudante'}'}};export const observeSession=cb=>{listeners.add(cb);queueMicrotask(()=>cb(current));return ()=>listeners.delete(cb);};export const logoutRequest=async()=>{current=null;listeners.forEach(cb=>cb(null));};export const loginRequest=async()=>{};export const fetchProjects=async()=>(await fetch('/__catalogue')).json();`}));
+  await page.route('**/src/services/firebase.js*',route=>route.fulfill({contentType:'application/javascript',body:`export const auth={currentUser:{getIdToken:async()=>'${actor}'}};`}));
   await page.route('**/api/**',async route=>route.fulfill({response:await route.fetch({url:'http://127.0.0.1:3002'+new URL(route.request().url()).pathname+new URL(route.request().url()).search})}));
   await page.route('**/__catalogue',async route=>route.fulfill({response:await route.fetch({url:'http://127.0.0.1:3002/catalogue'})}));return page;
  }

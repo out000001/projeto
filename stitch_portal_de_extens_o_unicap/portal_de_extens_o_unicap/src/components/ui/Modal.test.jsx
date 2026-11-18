@@ -139,3 +139,10 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("conteúdo seguro")).toBeInTheDocument();
   });
 });
+
+it('keeps Tab and Shift+Tab within the modal and restores focus on close',async()=>{
+ const user=userEvent.setup();
+ function content(open){return <><button>Acionador</button><Modal open={open} onClose={()=>{}} title="Teclado"><button>Última ação</button></Modal></>;}
+ const{rerender}=render(content(false));const trigger=screen.getByRole('button',{name:'Acionador'});await user.click(trigger);rerender(content(true));
+ expect(screen.getByRole('dialog')).toHaveFocus();await user.tab();expect(screen.getByRole('button',{name:'Fechar'})).toHaveFocus();await user.tab({shift:true});expect(screen.getByRole('button',{name:'Última ação'})).toHaveFocus();await user.tab();expect(screen.getByRole('button',{name:'Fechar'})).toHaveFocus();rerender(content(false));expect(trigger).toHaveFocus();
+});

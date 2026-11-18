@@ -10,7 +10,7 @@ import {
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 
 const messages = {
-  "auth/email-not-verified": "Confirme seu e-mail antes de entrar. Confira a caixa de entrada e o spam ou use Reenviar confirmação de e-mail.",
+  "auth/email-not-verified": "Confirme seu e-mail antes de entrar. Confira a caixa de entrada e o spam. Se precisar de ajuda, contate a coordenação.",
   "auth/invalid-credential": "Identificação ou senha inválidos.",
   "auth/invalid-email": "Informe um e-mail válido para entrar.",
   "auth/user-not-found": "Identificação ou senha inválidos.",

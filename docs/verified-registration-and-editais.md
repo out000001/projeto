@@ -2,7 +2,7 @@
 
 ## Comportamento
 
-- O cadastro cria contas explicitamente não verificadas. Após criar a conta, o cliente solicita o e-mail de confirmação ao Firebase Auth e encerra a sessão temporária. A interface distingue conta criada de falha no envio da confirmação. O login permite reenviar o link usando e-mail e senha, inclusive para contas antigas sem confirmação.
+- O cadastro cria contas explicitamente não verificadas. Após criar a conta, o cliente solicita o e-mail de confirmação ao Firebase Auth e encerra a sessão temporária. A interface distingue conta criada de falha no envio da confirmação. O botão de reenvio no login foi removido por solicitação do usuário; a exigência de confirmação foi mantida.
 - Login, restauração de sessão e APIs de projetos, acompanhamento, conta e editais exigem e-mail confirmado. O perfil gestor continua vindo do documento protegido, nunca da seleção de perfil ou de um parâmetro enviado pelo cliente.
 - A chegada da mensagem a uma caixa real não foi medida. O teste local usa os links efetivamente emitidos pelo Firebase Auth Emulator e aplica seus códigos de confirmação antes de verificar o acesso.
 - O card “Acesso Seguro e Transparente” foi removido da vitrine. A preferência “Propostas para análise” aparece apenas para gestores. Os campos das configurações ficam desabilitados durante carregamento/salvamento para impedir sobrescrita de uma edição pela resposta inicial.

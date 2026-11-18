@@ -5,8 +5,9 @@ const {chromium}=require('@playwright/test');
 const browser=await chromium.launch({args:['--no-sandbox']});
 try {
  const page=await browser.newPage();
- await page.route('**/src/services/api.js',route=>route.fulfill({contentType:'application/javascript',body:`export const observeSession=cb=>{queueMicrotask(()=>cb(null));return()=>{};};export const logoutRequest=async()=>{};export const loginRequest=async()=>{};export const fetchProjects=async()=>({items:[]});`}));
- await page.route('**/src/services/firebase.js',route=>route.fulfill({contentType:'application/javascript',body:'export const auth={currentUser:null};'}));
+ await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
+ await page.route('**/src/services/api.js*',route=>route.fulfill({contentType:'application/javascript',body:`export const observeSession=cb=>{queueMicrotask(()=>cb(null));return()=>{};};export const logoutRequest=async()=>{};export const loginRequest=async()=>{};export const fetchProjects=async()=>({items:[]});`}));
+ await page.route('**/src/services/firebase.js*',route=>route.fulfill({contentType:'application/javascript',body:'export const auth={currentUser:null};'}));
  const results=[];
  await page.goto('http://127.0.0.1:5173/');await page.getByLabel('Login Institucional (e-mail)').waitFor();await auditLayout(page,'login',results);
  await page.getByRole('button',{name:'Não tenho conta — Criar cadastro'}).click();await page.getByRole('heading',{name:/Criar.*conta/}).waitFor();await page.getByLabel('Senha',{exact:true}).fill('senha-local-de-teste');await page.getByLabel('Confirmar senha',{exact:true}).fill('senha-local-de-teste');

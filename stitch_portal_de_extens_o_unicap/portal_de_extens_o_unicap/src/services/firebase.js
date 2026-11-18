@@ -18,6 +18,7 @@ const firebaseConfig = {
 export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 export const firestore = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
+auth.languageCode = "pt-BR";
 
 if (import.meta.env?.VITE_FIREBASE_USE_EMULATORS === "true") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099");

@@ -1,0 +1,10 @@
+{
+  "defaultLocale": "pt-BR",
+  "senderDisplayName": "Portal de Extensão UNICAP",
+  "templates": {
+    "verifyEmailTemplate": {"subject": "Confirme seu e-mail | Portal de Extensão UNICAP"},
+    "resetPasswordTemplate": {"subject": "Redefina sua senha | Portal de Extensão UNICAP", "bodyFile": "reset-password.html", "bodyFormat": "HTML"},
+    "changeEmailTemplate": {"subject": "Alteração de e-mail | Portal de Extensão UNICAP"},
+    "revertSecondFactorAdditionTemplate": {"subject": "Novo fator de autenticação | Portal de Extensão UNICAP"}
+  }
+}

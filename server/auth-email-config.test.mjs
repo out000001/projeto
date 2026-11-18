@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';
-import{emailTemplatePatch,emailTemplatesMatch}from'./auth-email-config.mjs';
+import{AUTH_CONFIG_URL,emailTemplatePatch,emailTemplatesMatch}from'./auth-email-config.mjs';
 const config=JSON.parse(await readFile(new URL('../config/auth-emails/templates.json',import.meta.url),'utf8'));
 const html=await readFile(new URL('../config/auth-emails/reset-password.html',import.meta.url),'utf8');
 test('brands all four subjects and senders without changing delivery, action URLs or auth policies',()=>{
@@ -21,3 +21,5 @@ test('matching is idempotent but catches a changed subject or missing email body
  const changed=structuredClone(body);changed.notification.sendEmail.verifyEmailTemplate.subject='Other';assert.equal(emailTemplatesMatch(changed,body),false);
  delete changed.notification.sendEmail.resetPasswordTemplate.body;assert.equal(emailTemplatesMatch(changed,body),false);
 });
+
+test('uses the Firebase administrative configuration endpoint',()=>{assert.equal(new URL(AUTH_CONFIG_URL).pathname,'/admin/v2/projects/portaldeextensaocomunitaria/config');});

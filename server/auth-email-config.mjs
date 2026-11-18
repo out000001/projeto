@@ -1,3 +1,4 @@
+export const AUTH_CONFIG_URL='https://identitytoolkit.googleapis.com/admin/v2/projects/portaldeextensaocomunitaria/config';
 const names=['verifyEmailTemplate','resetPasswordTemplate','changeEmailTemplate','revertSecondFactorAdditionTemplate'];
 export function emailTemplatePatch(config,resetBody){
  if(config.defaultLocale!=='pt-BR'||!config.senderDisplayName?.trim())throw new Error('Invalid email branding configuration');

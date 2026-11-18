@@ -1,7 +1,7 @@
 import {readFile} from 'node:fs/promises';
 import {getApp} from 'firebase-admin/app';
 import {services} from './firebase-admin.mjs';
-import {emailTemplatePatch,emailTemplatesMatch} from './auth-email-config.mjs';
+import {AUTH_CONFIG_URL,emailTemplatePatch,emailTemplatesMatch} from './auth-email-config.mjs';
 
 // Reviewed project-specific production configuration. Credentials remain in memory.
 if(process.env.VERCEL_ENV==='production'){
@@ -13,12 +13,12 @@ if(process.env.VERCEL_ENV==='production'){
   const credential=getApp().options.credential;
   const {access_token:accessToken}=await credential.getAccessToken();
   const fields='notification(defaultLocale,sendEmail(verifyEmailTemplate(senderDisplayName,subject),resetPasswordTemplate(senderDisplayName,subject,body,bodyFormat),changeEmailTemplate(senderDisplayName,subject),revertSecondFactorAdditionTemplate(senderDisplayName,subject)))';
-  const base='https://identitytoolkit.googleapis.com/v2/projects/portaldeextensaocomunitaria/config';
+  const base=AUTH_CONFIG_URL;
   async function request(method,payload){
    const query=new URLSearchParams({fields,...(method==='PATCH'?{updateMask:mask.join(',')}:{})});
    const response=await fetch(`${base}?${query}`,{method,headers:{Authorization:`Bearer ${accessToken}`,...(payload?{'Content-Type':'application/json'}:{})},...(payload?{body:JSON.stringify(payload)}:{}),signal:AbortSignal.timeout(30000)});
    const result=await response.json();
-   if(!response.ok)throw new Error(`Firebase email configuration: HTTP ${response.status} (${result.error?.status||'unknown'})`);
+   if(!response.ok)throw new Error(`Firebase email configuration: HTTP ${response.status} (${method}: ${result.error?.status||'unknown'})`);
    return result;
   }
   const current=await request('GET');

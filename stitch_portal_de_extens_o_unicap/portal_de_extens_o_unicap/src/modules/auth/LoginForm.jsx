@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useSession } from "../../contexts/SessionContext";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
-import { Shield, Lock, LockOpen, Mail, Eye, EyeOff } from "../../components/ui/Icons";
+import { Shield, Lock, School, Mail, Eye, EyeOff } from "../../components/ui/Icons";
 
 import RegistrationForm from "./RegistrationForm";
 
@@ -23,7 +23,7 @@ const profiles = [
     label: "Estudante / Comunidade",
     description: "Alunos UNICAP e voluntários da sociedade civil.",
     color: "bg-secondary-container text-on-secondary-container",
-    icon: LockOpen
+    icon: School
   }
 ];
 

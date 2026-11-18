@@ -18,7 +18,11 @@ if(process.env.VERCEL_ENV==='production'){
    const query=new URLSearchParams({fields,...(method==='PATCH'?{updateMask:mask.join(',')}:{})});
    const response=await fetch(`${base}?${query}`,{method,headers:{Authorization:`Bearer ${accessToken}`,...(payload?{'Content-Type':'application/json'}:{})},...(payload?{body:JSON.stringify(payload)}:{}),signal:AbortSignal.timeout(30000)});
    const result=await response.json();
-   if(!response.ok)throw new Error(`Firebase email configuration: HTTP ${response.status} (${method}: ${result.error?.status||'unknown'})`);
+   if(!response.ok){
+    // Only configuration validation text is logged; never request headers or configuration values.
+    const detail=response.status===400?String(result.error?.message||'').replace(/Bearer\s+\S+/gi,'[redacted]').replace(/ya29\.[A-Za-z0-9._-]+/g,'[redacted]').slice(0,400):'';
+    throw new Error(`Firebase email configuration: HTTP ${response.status} (${method}: ${result.error?.status||'unknown'}) ${detail}`);
+   }
    return result;
   }
   const current=await request('GET');

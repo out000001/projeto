@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';
-import{AUTH_CONFIG_URL,emailTemplatePatch,emailTemplatesMatch}from'./auth-email-config.mjs';
+import{AUTH_CONFIG_URL,emailTemplatePatch,emailTemplatesMatch,singleTemplateUpdate}from'./auth-email-config.mjs';
 const config=JSON.parse(await readFile(new URL('../config/auth-emails/templates.json',import.meta.url),'utf8'));
 const html=await readFile(new URL('../config/auth-emails/reset-password.html',import.meta.url),'utf8');
 test('brands all four subjects and senders without changing delivery, action URLs or auth policies',()=>{
@@ -23,3 +23,13 @@ test('matching is idempotent but catches a changed subject or missing email body
 });
 
 test('uses the Firebase administrative configuration endpoint',()=>{assert.equal(new URL(AUTH_CONFIG_URL).pathname,'/admin/v2/projects/portaldeextensaocomunitaria/config');});
+
+test('complete template updates preserve managed bodies and sender addresses',()=>{
+ const{body}=emailTemplatePatch(config,html);
+ const current={notification:{sendEmail:{verifyEmailTemplate:{senderLocalPart:'noreply',replyTo:'',body:'Managed %LINK%',bodyFormat:'HTML',customized:false}}}};
+ const update=singleTemplateUpdate(current,body,'verifyEmailTemplate');
+ assert.equal(update.body.notification.sendEmail.verifyEmailTemplate.body,'Managed %LINK%');
+ assert.equal(update.body.notification.sendEmail.verifyEmailTemplate.senderLocalPart,'noreply');
+ assert.equal('customized' in update.body.notification.sendEmail.verifyEmailTemplate,false);
+ assert.deepEqual(update.mask,['notification.sendEmail.verifyEmailTemplate']);
+});

@@ -19,3 +19,12 @@ export function emailTemplatesMatch(current,desired){
  if(current?.notification?.defaultLocale!==desired.notification.defaultLocale)return false;
  return Object.entries(desired.notification.sendEmail).every(([name,fields])=>Object.entries(fields).every(([field,value])=>current.notification.sendEmail?.[name]?.[field]===value));
 }
+
+// The admin API validates complete template objects even for branding changes.
+// Preserve all managed fields and omit output-only metadata when updating a template.
+export function singleTemplateUpdate(current,desired,name){
+ if(!names.includes(name))throw new Error('Unknown Firebase email template');
+ const existing=current.notification?.sendEmail?.[name]||{};
+ const preserved=Object.fromEntries(['senderLocalPart','senderDisplayName','replyTo','subject','body','bodyFormat'].filter(key=>existing[key]!==undefined).map(key=>[key,existing[key]]));
+ return{body:{notification:{sendEmail:{[name]:{...preserved,...desired.notification.sendEmail[name]}}}},mask:[`notification.sendEmail.${name}`]};
+}

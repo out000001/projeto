@@ -20,7 +20,7 @@ vi.mock("firebase/firestore", () => ({
 
 const auth = {};
 const client = createFirebaseClient({ auth, firestore: {} });
-const firebaseUser = { uid: "uid-student", email: "student@example.com" };
+const firebaseUser = { emailVerified:true, uid: "uid-student", email: "student@example.com" };
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -127,4 +127,15 @@ describe("Firebase client", () => {
     expect(onSession).toHaveBeenCalledTimes(1);
     expect(onSession).toHaveBeenCalledWith(null);
   });
+});
+
+it('rejects unverified email before loading private profile and signs out',async()=>{
+ signInWithEmailAndPassword.mockResolvedValue({user:{...firebaseUser,emailVerified:false}});
+ await expect(client.loginRequest('student@example.com','password')).rejects.toMatchObject({code:'auth/email-not-verified'});
+ expect(getDoc).not.toHaveBeenCalled();expect(signOut).toHaveBeenCalledWith(auth);
+});
+it('does not restore an unverified session',async()=>{
+ let callback;onIdTokenChanged.mockImplementation((_auth,fn)=>{callback=fn;return()=>{};});
+ const session=vi.fn(),error=vi.fn();client.observeSession(session,error);
+ await callback({...firebaseUser,emailVerified:false});expect(session).toHaveBeenCalledWith(null);expect(getDoc).not.toHaveBeenCalled();
 });

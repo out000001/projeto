@@ -9,7 +9,7 @@ const statusTheme = {
 };
 
 const typeTheme = {
-  pbex: { bg: "bg-primary text-on-primary", label: "PIBEX" },
+  pbex: { bg: "bg-primary text-on-primary", label: "PIBIC" },
   proext: { bg: "bg-secondary text-on-secondary", label: "PROEXT" },
   voluntary: { bg: "bg-surface-container-high text-secondary", label: "Voluntário" },
   course: { bg: "bg-tertiary text-on-tertiary", label: "Curso/Oficina" }

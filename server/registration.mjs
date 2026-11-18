@@ -37,7 +37,7 @@ export function createRegistrationHandler({ auth, db, managerKey }) {
           !timingSafeEqual(digest(managerCode), digest(managerKey)))) {
         return res.status(403).json({ error: 'Chave de gestor inválida.' });
       }
-      const user = await auth.createUser({ email: email.trim(), password, displayName: name.trim() });
+      const user = await auth.createUser({ email: email.trim(), password, emailVerified: false, displayName: name.trim() });
       try {
         await db.collection('users').doc(user.uid).create({ name: name.trim(), profile });
       } catch (error) {

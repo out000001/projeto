@@ -181,9 +181,9 @@ describe("ManagerDashboard", () => {
       </MemoryRouter>
     );
     fireEvent.change(screen.getByLabelText("Filtrar por edital"), {
-      target: { value: "PIBEX 2024.2" }
+      target: { value: "PIBIC 2024.2" }
     });
-    const expected = dashboardProjects.filter((p) => p.grant === "PIBEX 2024.2").length;
+    const expected = dashboardProjects.filter((p) => p.grant === "PIBIC 2024.2").length;
     expect(screen.getByRole("status")).toHaveTextContent(
       expected === 1 ? "1 projeto encontrado" : `${expected} projetos encontrados`
     );
@@ -217,18 +217,18 @@ describe("Sprint 8 — ações do cabeçalho do painel", () => {
     expect(blob.type).toContain("text/csv");
   });
 
-  it("'Novo Edital PIBEX' navega para a tela de submissão", async () => {
+  it("'Novo Edital PIBIC' navega para a gestão de editais", async () => {
     const user = userEvent.setup();
     render(
       <MemoryRouter initialEntries={["/dashboard"]}>
         <Routes>
           <Route path="/dashboard" element={<ManagerDashboard />} />
-          <Route path="/submit" element={<h1>Submissão de Proposta de Extensão</h1>} />
+          <Route path="/editais" element={<h1>Submissão de Proposta de Extensão</h1>} />
         </Routes>
       </MemoryRouter>
     );
 
-    await user.click(screen.getByRole("button", { name: /novo edital pibex/i }));
+    await user.click(screen.getByRole("button", { name: /novo edital pibic/i }));
 
     expect(
       await screen.findByRole("heading", { name: /submissão de proposta de extensão/i })

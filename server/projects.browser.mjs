@@ -10,7 +10,7 @@ const {chromium}=require('@playwright/test');
 if(!process.env.FIRESTORE_EMULATOR_HOST) throw new Error('Firestore emulator required');
 const app=initializeApp({projectId:'demo-portal-unicap'},'browser-project-flow');const db=getFirestore(app);
 // Identity is a test double; API/database/file operations below use the real code.
-const handler=createProjectsHandler({auth:{verifyIdToken:async()=>({uid:'browser-manager',email:'manager@example.invalid'})},db});
+const handler=createProjectsHandler({auth:{verifyIdToken:async()=>({email_verified:true,uid:'browser-manager',email:'manager@example.invalid'})},db});
 const server=http.createServer(async(req,res)=>{
  try {
   const url=new URL(req.url,'http://127.0.0.1');res.status=code=>{res.statusCode=code;return res;};res.json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value));};

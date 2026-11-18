@@ -13,7 +13,7 @@ const projectId='demo-portal-unicap';
 const app=initializeApp({projectId},'project-persistence-test');
 const db=getFirestore(app);
 const environment=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:await readFile(new URL('../stitch_portal_de_extens_o_unicap/portal_de_extens_o_unicap/firestore.rules',import.meta.url),'utf8')}});
-const auth={verifyIdToken:async uid=>({uid,email:`${uid}@example.invalid`})};
+const auth={verifyIdToken:async uid=>({email_verified:true,uid,email:`${uid}@example.invalid`})};
 async function request(actor,method,body={},query={}) {
  const handler=createProjectsHandler({auth,db});
  const res={code:200,setHeader(){},status(code){this.code=code;return this;},json(value){this.value=value;return this;}};

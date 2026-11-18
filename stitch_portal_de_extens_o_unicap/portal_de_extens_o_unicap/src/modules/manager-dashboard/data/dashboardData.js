@@ -1,12 +1,7 @@
+import {centers} from "../../project-submission/data/submissionOptions";
 // Dashboard filter defaults. Available values are populated from saved projects.
 export const filterOptions = {
-  centers: [
-    "Ciências Humanas",
-    "Ciências Jurídicas",
-    "Ciências Sociais",
-    "Ciências Biológicas e Saúde",
-    "UNICAP Icam Tech"
-  ],
+  centers,
   thematicLines: [
     "Comunicação e expressão",
     "Cultura e diversidade",
@@ -24,8 +19,8 @@ export const filterOptions = {
     { value: "completed", label: "Concluído" }
   ],
   grants: [
-    "PIBEX 2024.2",
-    "PIBEX 2025.1",
+    "PIBIC 2024.2",
+    "PIBIC 2025.1",
     "PROEXT 2025.1",
     "Prouni Extensão",
     "Programa Voluntário"

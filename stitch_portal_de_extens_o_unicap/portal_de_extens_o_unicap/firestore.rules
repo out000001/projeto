@@ -3,6 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isManager() {
       return request.auth != null
+        && request.auth.token.email_verified == true
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.profile == 'gestor';
     }

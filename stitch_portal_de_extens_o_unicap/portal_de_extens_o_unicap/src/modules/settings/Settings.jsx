@@ -128,6 +128,7 @@ export default function SettingsScreen() {
         </div>
       )}
 
+      <fieldset disabled={loading || busy} className="contents">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <SectionCard icon={User} title="Perfil" subtitle="Dados exibidos nos registros de extensão.">
           <div className="flex flex-col gap-4 py-3">
@@ -174,7 +175,7 @@ export default function SettingsScreen() {
         </SectionCard>
 
         <SectionCard icon={Mail} title="Notificações" subtitle="Escolha os avisos mostrados no menu Avisos. Não são enviados e-mails automáticos.">
-          {NOTIFICATION_OPTIONS.map((option) => (
+          {NOTIFICATION_OPTIONS.filter(option => option.id !== "notifyEditais" || profile === "gestor").map((option) => (
             <ToggleRow
               key={option.id}
               id={`toggle-${option.id}`}
@@ -272,6 +273,7 @@ export default function SettingsScreen() {
           </div>
         </div>
       </Card>
+      </fieldset>
     </div>
   );
 }

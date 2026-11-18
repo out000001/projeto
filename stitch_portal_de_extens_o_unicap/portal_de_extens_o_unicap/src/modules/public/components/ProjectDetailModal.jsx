@@ -14,7 +14,7 @@ export default function ProjectDetailModal({ project, onClose, onEnroll }) {
     <Modal open onClose={onClose} title={`Detalhes do projeto ${project.title}`} titleId="project-detail-title">
       <div className="flex items-start justify-between gap-4 border-b border-surface-container-high p-6 pr-12">
         <div className="flex flex-col gap-2">
-          <Badge type={project.modality.includes("PIBEX") ? "pbex" : "proext"} label={project.modality} />
+          <Badge type={project.modality.includes("PIBIC") ? "pbex" : "proext"} label={project.modality} />
           <h2 id="project-detail-title" className="font-headline-md font-semibold text-on-surface">
             {project.title}
           </h2>

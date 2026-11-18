@@ -14,7 +14,7 @@ function fixture(manager=true){
    }};
   }
  };
- const auth={verifyIdToken:async()=>({uid:'user'})};
+ const auth={verifyIdToken:async()=>({email_verified:true,uid:'user'})};
  const response=()=>({code:200,setHeader(){},status(code){this.code=code;return this;},json(value){this.value=value;return this;}});
  return{db,auth,response};
 }

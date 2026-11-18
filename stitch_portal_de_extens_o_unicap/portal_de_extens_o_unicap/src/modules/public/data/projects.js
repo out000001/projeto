@@ -38,9 +38,9 @@ export const faq = [
       "Sim. Cada projeto informa a carga horária válida para Atividades Curriculares Complementares (ACCs), registrada automaticamente após a conclusão e homologação pelo gestor responsável."
   },
   {
-    question: "Como funcionam as bolsas PIBEX?",
+    question: "Como funcionam as bolsas PIBIC?",
     answer:
-      "Projetos com modalidade PIBEX oferecem bolsas remuneradas conforme edital. A seleção considera histórico acadêmico, disponibilidade declarada e entrevista com o docente responsável."
+      "Projetos com modalidade PIBIC oferecem bolsas remuneradas conforme edital. A seleção considera histórico acadêmico, disponibilidade declarada e entrevista com o docente responsável."
   },
   {
     question: "Perco o direito de participar se as vagas estiverem esgotadas?",

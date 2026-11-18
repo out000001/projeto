@@ -9,7 +9,7 @@ describe("buildFrequencyCsv — exportação da folha", () => {
       name: "Ana Souza",
       mat: "20201001",
       course: "Direito",
-      modality: "Bolsista PIBEX"
+      modality: "Bolsista PIBIC"
     },
     {
       id: "s2",
@@ -23,7 +23,7 @@ describe("buildFrequencyCsv — exportação da folha", () => {
       name: "Cássia Melo",
       mat: "20201003",
       course: "Serviço Social",
-      modality: "Bolsista PIBEX"
+      modality: "Bolsista PIBIC"
     }
   ];
 

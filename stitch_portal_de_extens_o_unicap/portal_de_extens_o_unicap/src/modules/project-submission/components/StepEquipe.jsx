@@ -87,7 +87,7 @@ export default function StepEquipe({ form, updateForm, errors }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Counter
-          label="Bolsistas PIBEX"
+          label="Bolsistas PIBIC"
           description="Cotas de bolsa com auxílio financeiro mensal."
           icon="payments"
           value={Number(form.bolsistas) || 0}

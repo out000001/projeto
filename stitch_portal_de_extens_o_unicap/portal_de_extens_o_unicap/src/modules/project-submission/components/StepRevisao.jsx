@@ -27,7 +27,7 @@ SummaryRow.propTypes = {
   value: PropTypes.node
 };
 
-export default function StepRevisao({ form, updateForm, errors }) {
+export default function StepRevisao({ form, updateForm, errors, availableEditais=editais }) {
   const compliance = form.compliance || {};
   const odsLabels = (form.ods || [])
     .map((v) => odsOptions.find((o) => o.value === v)?.label)
@@ -35,7 +35,7 @@ export default function StepRevisao({ form, updateForm, errors }) {
   const deliverableLabels = (form.selectedDeliverables || [])
     .map((v) => deliverables.find((d) => d.value === v)?.label)
     .filter(Boolean);
-  const editalLabel = editais.find((e) => e.value === form.edital)?.label;
+  const editalLabel = availableEditais.find((e) => e.value === form.edital)?.label;
 
   const allChecked = complianceItems.every((item) => compliance[item.key]);
 
@@ -108,6 +108,7 @@ export default function StepRevisao({ form, updateForm, errors }) {
 }
 
 StepRevisao.propTypes = {
+  availableEditais: PropTypes.array,
   form: PropTypes.object.isRequired,
   updateForm: PropTypes.func.isRequired,
   errors: PropTypes.object

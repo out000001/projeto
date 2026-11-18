@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import {fetchEditais} from "../../services/editaisApi";
+import { useEffect, useRef, useState } from "react";
 import { submitProject } from "../../services/projectApi";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
@@ -13,6 +14,7 @@ import StepRevisao from "./components/StepRevisao";
 import useSubmissionDraft from "./hooks/useSubmissionDraft";
 import { validateStep, validateAttachment } from "./validation";
 import {
+  editais,
   steps,
   createEmptySubmission,
   annexRules
@@ -29,6 +31,11 @@ const stepComponents = {
 
 export default function ProjectSubmission() {
   const { form, updateForm, clearDraft, savedAt } = useSubmissionDraft(createEmptySubmission());
+  const [savedEditais,setSavedEditais]=useState([]);
+  const [editalError,setEditalError]=useState("");
+  const [editalVersion,setEditalVersion]=useState(0);
+  useEffect(()=>{let active=true;setEditalError("");fetchEditais().then(({items})=>{if(active)setSavedEditais(items.map(item=>({value:item.id,label:item.title})));}).catch(error=>{if(active)setEditalError(error.message);});return()=>{active=false;};},[editalVersion]);
+  const availableEditais=[...editais.filter(item=>item.value==="livre" || (item.value===form.edital && !savedEditais.some(saved=>saved.value===item.value))),...savedEditais];
   const [currentStep, setCurrentStep] = useState(0);
   const [stepErrors, setStepErrors] = useState({});
   const [attachmentError, setAttachmentError] = useState(null);
@@ -154,9 +161,11 @@ export default function ProjectSubmission() {
 
       {sendError && <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-800">{sendError} O rascunho foi mantido.</p>}
       {form.attachmentsNeedReselection && <p role="status" className="rounded-lg bg-amber-50 p-4 text-amber-900">Selecione novamente os anexos: arquivos não são preservados ao fechar o navegador. <Button variant="outline" onClick={() => updateForm({ attachments: [], attachmentsNeedReselection: false })}>Enviar sem esses anexos</Button></p>}
+      {editalError&&<p role="alert">Não foi possível carregar os editais: {editalError} <button type="button" className="underline" onClick={()=>setEditalVersion(v=>v+1)}>Recarregar editais</button></p>}
       <Card className="p-6">
         <fieldset disabled={sending}>
       <StepComponent
+          availableEditais={availableEditais}
           form={form}
           updateForm={updateForm}
           errors={stepErrors}

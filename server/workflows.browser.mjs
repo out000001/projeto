@@ -1,3 +1,4 @@
+import {createEditaisHandler} from './editais.mjs';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {mkdir} from 'node:fs/promises';
@@ -13,8 +14,8 @@ const require=createRequire(new URL('../stitch_portal_de_extens_o_unicap/portal_
 if(!process.env.FIRESTORE_EMULATOR_HOST)throw new Error('Emulator required');
 const app=initializeApp({projectId:'demo-portal-unicap'},'portal-browser-workflows');const db=getFirestore(app);
 const names={manager:'Gestora de teste',student:'Aluno de teste',other:'Outro participante'};
-const auth={verifyIdToken:async uid=>{if(!names[uid])throw new Error('invalid');return{uid,email:uid+'@example.invalid'};},getUserByEmail:async email=>{const uid=email.split('@')[0];if(!names[uid])throw Object.assign(new Error('not found'),{code:'auth/user-not-found'});return{uid};}};
-const handlers={projects:createProjectsHandler({auth,db}),tracking:createTrackingHandler({auth,db}),portal:createPortalHandler({auth,db})};
+const auth={verifyIdToken:async uid=>{if(!names[uid])throw new Error('invalid');return{email_verified:true,uid,email:uid+'@example.invalid'};},getUserByEmail:async email=>{const uid=email.split('@')[0];if(!names[uid])throw Object.assign(new Error('not found'),{code:'auth/user-not-found'});return{uid};}};
+const handlers={editais:createEditaisHandler({auth,db}),projects:createProjectsHandler({auth,db}),tracking:createTrackingHandler({auth,db}),portal:createPortalHandler({auth,db})};
 async function request(handler,actor,method,body={},query={}){const res={code:200,setHeader(){},status(code){this.code=code;return this;},json(value){this.value=value;return this;}};await handlers[handler]({method,body,query,headers:{authorization:'Bearer '+actor}},res);assert.equal(res.code<400,true,JSON.stringify(res.value));return res.value;}
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://127.0.0.1');res.status=code=>{res.statusCode=code;return res;};res.json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value));};if(url.pathname==='/catalogue'){const snapshot=await db.collection('projects').get();return res.json({items:snapshot.docs.map(d=>({...d.data(),id:d.id}))});}req.query=Object.fromEntries(url.searchParams);const chunks=[];for await(const chunk of req)chunks.push(chunk);req.body=chunks.length?JSON.parse(Buffer.concat(chunks).toString()):{};await handlers[url.pathname.split('/').at(-1)](req,res);}catch(error){res.statusCode=500;res.end(JSON.stringify({error:error.message}));}});
 await new Promise(resolve=>server.listen(3002,'127.0.0.1',resolve));let browser;

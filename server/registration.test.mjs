@@ -31,8 +31,9 @@ function setup({ failProfile = false } = {}) {
 }
 test('students do not need a key and cannot inject role fields', async () => {
   const { request, calls } = setup();
-  assert.equal((await request({ role: 'gestor', managerCode: 'anything' })).statusCode, 201);
+  assert.equal((await request({ role: 'gestor', managerCode: 'anything', emailVerified:true })).statusCode, 201);
   assert.deepEqual(calls[1][3], { name: 'Ana', profile: 'estudante' });
+  assert.equal(calls[0][1].emailVerified,false);
 });
 test('managers require the exact server key', async () => {
   const { request, calls } = setup();

@@ -100,9 +100,9 @@ export default function ManagerDashboard() {
               <Download className="h-4 w-4" />
               Exportar relatório CSV
             </Button>
-            <Button onClick={() => navigate("/submit")}>
+            <Button onClick={() => navigate("/editais")}>
               <Plus className="h-4 w-4" />
-              Novo Edital PIBEX
+              Novo Edital PIBIC
             </Button>
           </div>
         </div>

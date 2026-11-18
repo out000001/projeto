@@ -172,6 +172,10 @@ describe("totalBudget", () => {
 it("identifica o contador que contém fração antes do envio", () => {
   const result = validateStep("equipe", { bolsistas: 1.5, voluntarios: 2, expectedAudience: 50 });
   expect(result.ok).toBe(false);
-  expect(result.errors.bolsistas).toMatch(/Bolsistas PIBEX.*número inteiro/);
+  expect(result.errors.bolsistas).toMatch(/Bolsistas PIBIC.*número inteiro/);
   expect(result.errors.voluntarios).toBeUndefined();
+});
+
+it('rejects obsolete institutional options instead of silently submitting a school not in the list',()=>{
+ expect(validateStep('identificacao',{...validForm(),center:'IH - Inst. Humanitas de Direitos Humanos'}).errors.center).toMatch(/escola da UNICAP/);
 });

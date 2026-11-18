@@ -13,7 +13,6 @@ import {
   Verified,
   Mail,
   CheckCircle,
-  Shield,
   Logout,
   AlertTriangle
 } from "../../components/ui/Icons";
@@ -310,22 +309,6 @@ export default function PublicLanding({ authenticated = false }) {
           </p>
           <PartnershipForm />
         </Card>
-      </section>
-
-      <section className="rounded-2xl border border-surface-container-high bg-surface-container-lowest p-8 shadow-sm">
-        <div className="flex flex-col items-start gap-4 md:flex-row md:items-center">
-          <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-primary-container font-bold text-on-primary">
-            <Shield className="h-6 w-6" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-label-sm font-semibold uppercase tracking-wider text-primary">
-              Acesso Seguro e Transparente
-            </span>
-            <span className="text-body-md text-on-surface">
-              Acesso por e-mail e senha. As permissões de gestão são definidas pelo perfil cadastrado.
-            </span>
-          </div>
-        </div>
       </section>
 
       {selectedProject && (

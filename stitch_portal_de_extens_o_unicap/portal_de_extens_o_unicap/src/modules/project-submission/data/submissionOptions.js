@@ -1,5 +1,4 @@
-// Opções institucionais e template do formulário de submissão (mock, Sprint 3).
-// Centralizados para facilitar a futura integração com API/DB (ver [[Decisões do Projeto]]).
+// Opções institucionais e valores iniciais do formulário de submissão.
 
 export const steps = [
   { id: "identificacao", label: "Identificação Geral" },
@@ -10,15 +9,18 @@ export const steps = [
   { id: "revisao", label: "Revisão e Envio" }
 ];
 
+// Fonte institucional: https://lp.portal.unicap.br/vest_unicap
 export const centers = [
-  "ICST - Inst. de Ciências Sociais Aplicadas",
-  "ICB - Inst. de Ciências Biológicas e Saúde",
-  "ICT - Inst. de Ciências Exatas e Tecnologia",
-  "IH - Inst. Humanitas de Direitos Humanos"
+  "Ciências Jurídicas, Empresariais e Comunicação",
+  "Educação e Humanidades",
+  "Saúde e Ciências da Vida",
+  "Tecnologia e Inovação (ICAM-Tech)"
 ];
 
+// Identificadores antigos preservados para compatibilidade com propostas já salvas.
+// Novas vinculações são carregadas do cadastro de editais.
 export const editais = [
-  { value: "pibex-2025", label: "Edital PIBEX UNICAP 2025/2026" },
+  { value: "pibex-2025", label: "Edital PIBIC UNICAP 2025/2026" },
   { value: "proext-recife", label: "Edital PROEXT Inovação Social 2024.2" },
   { value: "fasa-comunidade", label: "Fundo FASA de Extensão Solidária" },
   { value: "livre", label: "Ação Não Vinculada a Bolsas" }
@@ -55,7 +57,7 @@ export const odsOptions = [
 ];
 
 export const teamRoles = [
-  { value: "bolsista", label: "Bolsista PIBEX" },
+  { value: "bolsista", label: "Bolsista PIBIC" },
   { value: "voluntario", label: "Voluntário" },
   { value: "docente", label: "Docente colaborador" },
   { value: "comunidade", label: "Parceiro comunitário" }
@@ -87,7 +89,7 @@ export function createEmptySubmission() {
   return {
     // Etapa 1 — Identificação
     title: "",
-    edital: "pibex-2025",
+    edital: "livre",
     center: centers[0],
     modality: "projeto",
     // Etapa 2 — Impacto e ODS

@@ -1,3 +1,4 @@
+import {requireVerifiedEmail} from './verified-email.mjs';
 import {randomUUID,createHash} from 'node:crypto';
 import {DEFAULT_SETTINGS,validateSettings} from '../stitch_portal_de_extens_o_unicap/portal_de_extens_o_unicap/src/modules/settings/settingsLogic.js';
 import {initialTracking} from './tracking.mjs';
@@ -62,6 +63,7 @@ export function createPortalHandler({auth,db}) {
    }
    const token=/^Bearer (.+)$/.exec(req.headers.authorization||'')?.[1];if(!token)throw fail(401,'Entre na sua conta para continuar.');
    let user;try{user=await auth.verifyIdToken(token,true);}catch{throw fail(401,'Sua sessão expirou. Entre novamente.');}
+      requireVerifiedEmail(user);
    const profileRef=db.collection('users').doc(user.uid);const profile=(await profileRef.get()).data()||{};const manager=profile.profile==='gestor';
    if(resource==='account') {
     const settings={...DEFAULT_SETTINGS,...(profile.settings||{})};

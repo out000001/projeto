@@ -5,7 +5,7 @@ import {generateKeyPairSync,sign,verify} from 'node:crypto';
 import jwks from 'jwks-rsa';
 
 test('Firebase Admin imports when require of ESM is disabled as on Vercel',()=>{
- const result=execFileSync(process.execPath,['--no-experimental-require-module','--input-type=module','-e',"await import('firebase-admin/auth');await import('firebase-admin/firestore');console.log('compatible')"],{encoding:'utf8'});
+ const result=execFileSync(process.execPath,['--no-experimental-require-module','--input-type=module','-e',"await import('firebase-admin/auth');await import('firebase-admin/firestore');await import('firebase-admin/security-rules');console.log('compatible')"],{encoding:'utf8'});
  assert.match(result,/compatible/);
 });
 test('JWKS resolves an RSA public key that verifies a signature without network access',async()=>{

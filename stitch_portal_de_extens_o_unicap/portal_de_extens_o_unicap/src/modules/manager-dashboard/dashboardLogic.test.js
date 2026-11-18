@@ -105,8 +105,8 @@ describe("filterProjects", () => {
     expect(saude.length).toBeGreaterThan(0);
     expect(saude.every((p) => p.thematicLine === "Saúde")).toBe(true);
 
-    const pibex = filterProjects(dashboardProjects, { grant: "PIBEX 2024.2" });
-    expect(pibex.every((p) => p.grant === "PIBEX 2024.2")).toBe(true);
+    const pibex = filterProjects(dashboardProjects, { grant: "PIBIC 2024.2" });
+    expect(pibex.every((p) => p.grant === "PIBIC 2024.2")).toBe(true);
   });
 
   it("retorna tudo com filtros padrão", () => {

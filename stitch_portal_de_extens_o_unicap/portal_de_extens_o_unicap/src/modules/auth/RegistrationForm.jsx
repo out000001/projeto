@@ -1,3 +1,4 @@
+import {sendVerificationForCredentials} from "../../services/emailVerification";
 import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import Input from "../../components/ui/Input";
@@ -18,6 +19,7 @@ export default function RegistrationForm({ onBack }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [verificationNotice,setVerificationNotice]=useState("");
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -55,7 +57,10 @@ export default function RegistrationForm({ onBack }) {
         return;
       }
       if (!response.ok || !result?.ok) throw new Error(result?.error || "Cadastro indisponível. Tente novamente mais tarde.");
-      setPassword(""); setConfirmation(""); setCode(""); setSuccess(true);
+      setSuccess(true);
+      try{await sendVerificationForCredentials(email,password);setVerificationNotice("Enviamos um link de confirmação para seu e-mail. Confira a caixa de entrada e o spam. Confirme o endereço e volte para entrar.");}
+      catch(err){setVerificationNotice("Conta criada, mas o envio da confirmação não foi concluído. " + err.message);}
+      setPassword(""); setConfirmation(""); setCode("");
     } catch (err) {
       setError(err.message === "Failed to fetch" ? "Verifique sua conexão e tente novamente." : err.message);
     } finally { setLoading(false); }
@@ -64,11 +69,12 @@ export default function RegistrationForm({ onBack }) {
   return (
     <div className="auth-form flex flex-col gap-6">
       <div className="auth-heading"><p className="auth-eyebrow text-primary">FAÇA PARTE</p><h1 ref={headingRef} tabIndex={-1} className="font-display text-3xl font-bold">Criar conta</h1><p className="mt-3 text-on-surface-variant">Seu próximo projeto começa com uma conexão.</p></div>
-      <p role="status" className="registration-status">{success ? "Cadastro concluído! Entre com seu e-mail e senha para acessar o portal." : loading ? "Criando sua conta. Aguarde…" : ""}</p>
+      <p role="status" className="registration-status">{success ? "Cadastro concluído! Confirme seu e-mail para acessar o portal." : loading ? "Criando sua conta. Aguarde…" : ""}</p>
       {success ? (
         <div className="flex flex-col gap-4 rounded-xl bg-surface-container-lowest p-6">
 
-          <Button onClick={onBack}>Ir para o login</Button>
+          <p aria-live="polite">{verificationNotice}</p>
+          <Button disabled={loading} onClick={onBack}>Ir para o login</Button>
         </div>
       ) : (
         <form ref={formRef} onSubmit={submit} aria-busy={loading} className="auth-credentials flex flex-col gap-5">

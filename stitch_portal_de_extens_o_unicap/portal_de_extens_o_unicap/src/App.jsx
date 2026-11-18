@@ -1,3 +1,4 @@
+import Editais from "./modules/editais/Editais";
 import { useEffect, useLayoutEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -157,7 +158,8 @@ export default function App() {
           </ProtectedRoute>
         } />
 
-        <Route path="/settings" element={
+        <Route path="/editais" element={<ProtectedRoute><AppLayout><Editais /></AppLayout></ProtectedRoute>} />
+              <Route path="/settings" element={
           <ProtectedRoute>
             <AppLayout>
               <SettingsScreen />

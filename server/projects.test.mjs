@@ -9,7 +9,7 @@ function setup(role='gestor') {
  const collection=path=>({select:()=>collection(path),where:()=>collection(path),doc:id=>doc(`${path}/${id}`),get:async()=>({docs:[...data.entries()].filter(([key])=>key.startsWith(path+'/')&&key.split('/').length===path.split('/').length+1).map(([key,value])=>({id:key.split('/').at(-1),data:()=>value}))})});
  const writer={set:(ref,value,options)=>data.set(ref.path,options?.merge?{...data.get(ref.path),...value}:value),create:(ref,value)=>{assert.equal(data.has(ref.path),false);data.set(ref.path,value);},update:(ref,value)=>data.set(ref.path,{...data.get(ref.path),...value}),delete:ref=>data.delete(ref.path),get:ref=>ref.get()};
  const db={collection,runTransaction:async fn=>fn(writer),batch:()=>({...writer,commit:async()=>{}})};
- const handler=createProjectsHandler({auth:{verifyIdToken:async()=>({uid:'test-user',email:'test@example.com'})},db});
+ const handler=createProjectsHandler({auth:{verifyIdToken:async()=>({email_verified:true,uid:'test-user',email:'test@example.com'})},db});
  const request=async(method='GET',body={},query={},authorized=true)=>{
   const res={code:200,setHeader(){},status(code){this.code=code;return this;},json(value){this.value=value;return this;}};
   await handler({method,body,query,headers:authorized?{authorization:'Bearer test-token'}:{}},res);return res;

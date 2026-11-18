@@ -5,7 +5,7 @@ import { centers, editais, modalities } from "../data/submissionOptions";
 
 const modalityIcons={programa:<Building className="h-5 w-5"/>,projeto:<FileText className="h-5 w-5"/>,curso:<School className="h-5 w-5"/>,evento:<Calendar className="h-5 w-5"/>,servico:<Person className="h-5 w-5"/>};
 
-export default function StepIdentificacao({ form, updateForm, errors }) {
+export default function StepIdentificacao({ form, updateForm, errors, availableEditais=editais }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between border-b border-surface-container-high pb-3">
@@ -13,7 +13,7 @@ export default function StepIdentificacao({ form, updateForm, errors }) {
           <span className="font-label-sm font-bold uppercase tracking-wider text-secondary">Seção 1</span>
           <h2 className="font-headline-sm font-semibold text-on-surface">Dados Gerais da Ação Extensionista</h2>
           <p className="text-body-sm text-on-surface-variant">
-            Definição do escopo, vinculação a edital institucional e centro acadêmico.
+            Definição do escopo, vinculação a edital institucional e escola da UNICAP.
           </p>
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function StepIdentificacao({ form, updateForm, errors }) {
             onChange={(e) => updateForm({ edital: e.target.value })}
             className="input"
           >
-            {editais.map((e) => (
+            {availableEditais.map((e) => (
               <option key={e.value} value={e.value}>
                 {e.label}
               </option>
@@ -48,7 +48,7 @@ export default function StepIdentificacao({ form, updateForm, errors }) {
 
         <div>
           <label htmlFor="center" className="mb-1 block font-label-md font-semibold text-on-surface">
-            Centro Acadêmico / Departamento *
+            Escola UNICAP *
           </label>
           <select
             id="center"
@@ -56,6 +56,7 @@ export default function StepIdentificacao({ form, updateForm, errors }) {
             onChange={(e) => updateForm({ center: e.target.value })}
             className="input"
           >
+            {!centers.includes(form.center)&&<option value="">Selecione uma escola da UNICAP</option>}
             {centers.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -99,6 +100,7 @@ export default function StepIdentificacao({ form, updateForm, errors }) {
 }
 
 StepIdentificacao.propTypes = {
+  availableEditais: PropTypes.array,
   form: PropTypes.object.isRequired,
   updateForm: PropTypes.func.isRequired,
   errors: PropTypes.object

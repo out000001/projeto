@@ -22,12 +22,14 @@ HelpIcon.propTypes = {
 const managerNav = [
   { to: "/dashboard", label: "Painel Gestor", icon: Building },
   { to: "/tracking", label: "Acompanhamento", icon: Calendar },
-  { to: "/submit", label: "Submeter Projeto", icon: Plus }
+  { to: "/submit", label: "Submeter Projeto", icon: Plus },
+  { to: "/editais", label: "Editais", icon: School }
 ];
 
 const communityNav = [
   { to: "/public", label: "Vitrine Pública", icon: School },
-  { to: "/tracking", label: "Meu Acompanhamento", icon: Calendar }
+  { to: "/tracking", label: "Meu Acompanhamento", icon: Calendar },
+  { to: "/editais", label: "Editais", icon: School }
 ];
 
 export default function AppLayout({ children }) {

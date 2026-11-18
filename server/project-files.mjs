@@ -35,3 +35,14 @@ export async function readFilePart(db,file,value) {
   }
   return {data:Buffer.concat(buffers).toString('base64')};
 }
+
+export async function writeFilePart(db,uid,id,a) {
+ if(!validId(a?.id)||!Number.isInteger(a.part)||a.part<0||a.part>=5||typeof a.data!=='string'||a.data.length>2800000)throw fail(400,'Parte de anexo inválida.');
+ const buffer=Buffer.from(a.data,'base64');if(!buffer.length||buffer.length>2*1024*1024)throw fail(400,'Anexo inválido.');
+ const root=db.collection('_projectFiles').doc(`${uid}-${id}-${a.id}`),shardSize=512*1024,shards=Math.ceil(buffer.length/shardSize);
+ await db.runTransaction(async tx=>{
+  const existing=await tx.get(root);if(existing.data()?.sealed)throw fail(409,'Este anexo já foi enviado e não pode ser alterado. Envie um novo arquivo.');
+  for(let i=0;i<shards;i++)tx.set(root.collection('data').doc(`${a.part}-${i}`),{base64:buffer.subarray(i*shardSize,(i+1)*shardSize).toString('base64')});
+  tx.set(root.collection('segments').doc(String(a.part)),{size:buffer.length,shards});tx.set(root,{ownerId:uid,submissionId:id,createdAt:new Date().toISOString()},{merge:true});
+ });
+}

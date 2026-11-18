@@ -1,4 +1,4 @@
-import { annexRules } from "./data/submissionOptions.js";
+import { annexRules, centers } from "./data/submissionOptions.js";
 
 // Validações puras do fluxo de submissão — sem React, para testes de unidade diretos.
 
@@ -10,7 +10,7 @@ export function validateStep(stepId, form) {
       if (!form.title || form.title.trim().length < 10) {
         errors.title = "Informe um título com pelo menos 10 caracteres.";
       }
-      if (!form.center) errors.center = "Selecione o centro acadêmico.";
+      if (!centers.includes(form.center)) errors.center = "Selecione uma escola da UNICAP.";
       if (!form.modality) errors.modality = "Selecione a modalidade da ação (FORPROEX).";
       break;
     }
@@ -24,7 +24,7 @@ export function validateStep(stepId, form) {
       break;
     }
     case "equipe": {
-      const labels = { bolsistas: "Bolsistas PIBEX", voluntarios: "Voluntários", expectedAudience: "Público Estimado" };
+      const labels = { bolsistas: "Bolsistas PIBIC", voluntarios: "Voluntários", expectedAudience: "Público Estimado" };
       for (const [field, label] of Object.entries(labels)) {
         const value = Number(form[field] ?? 0);
         if (!Number.isInteger(value) || value < 0 || value > 1000000) {

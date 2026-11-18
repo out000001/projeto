@@ -1,3 +1,4 @@
+import {requireVerifiedEmail} from './verified-email.mjs';
 import {randomUUID} from 'node:crypto';
 import {finalizeFiles,readFilePart} from './project-files.mjs';
 import {deliverables} from '../stitch_portal_de_extens_o_unicap/portal_de_extens_o_unicap/src/modules/project-submission/data/submissionOptions.js';
@@ -24,6 +25,7 @@ export function createTrackingHandler({auth,db}) {
    if(!['GET','POST'].includes(req.method)) throw fail(405,'Método não permitido.');
    const token=/^Bearer (.+)$/.exec(req.headers.authorization||'')?.[1];if(!token) throw fail(401,'Entre na sua conta para continuar.');
    let user;try{user=await auth.verifyIdToken(token,true);}catch{throw fail(401,'Sua sessão expirou. Entre novamente.');}
+      requireVerifiedEmail(user);
    const profile=(await db.collection('users').doc(user.uid).get()).data();const manager=profile?.profile==='gestor';
    const body=req.body||{};const id=req.method==='GET'?req.query?.id:body.id;
    if(req.method==='GET'&&!id) {

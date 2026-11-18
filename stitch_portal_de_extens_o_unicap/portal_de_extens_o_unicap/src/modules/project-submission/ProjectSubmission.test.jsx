@@ -1,3 +1,4 @@
+vi.mock("../../services/editaisApi",()=>({fetchEditais:vi.fn().mockResolvedValue({items:[]})}));
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, vi } from "vitest";
@@ -25,7 +26,7 @@ const titleInput = () => screen.getByLabelText(/título do projeto/i);
 async function fillIdentification(user) {
   await user.clear(titleInput());
   await user.type(titleInput(), "Cidadania Digital e Letramento Midiático na Comunidade dos Coelhos");
-  await user.selectOptions(screen.getByLabelText(/centro acadêmico/i), "IH - Inst. Humanitas de Direitos Humanos");
+  await user.selectOptions(screen.getByLabelText(/escola unicap/i), "Educação e Humanidades");
 }
 
 async function fillImpacto(user) {
@@ -37,7 +38,7 @@ async function fillImpacto(user) {
 }
 
 async function fillEquipe(user) {
-  await user.type(screen.getByLabelText(/bolsistas pibex/i, { selector: "input" }), "2");
+  await user.type(screen.getByLabelText(/bolsistas pibic/i, { selector: "input" }), "2");
   await user.type(screen.getByLabelText(/^público estimado$/i, { selector: "input" }), "120");
 }
 

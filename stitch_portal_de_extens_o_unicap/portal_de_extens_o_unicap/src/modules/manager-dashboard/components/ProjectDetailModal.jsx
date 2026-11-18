@@ -24,7 +24,7 @@ export default function ProjectDetailModal({ project, onClose, onChanged = () =>
           <Badge label={project.center} />
           <Badge
             type={
-              project.grant.startsWith("PIBEX")
+              project.grant.startsWith("PIBIC")
                 ? "pbex"
                 : project.grant.startsWith("PROEXT")
                   ? "proext"

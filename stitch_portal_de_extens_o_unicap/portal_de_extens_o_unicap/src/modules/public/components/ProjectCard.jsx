@@ -13,7 +13,7 @@ import { formatDate } from "../../../utils/format";
 
 function modalityBadgeType(modality) {
   if (modality.includes("Gratuita")) return "course"; // tags secundárias
-  if (modality.includes("PIBEX")) return "pbex";
+  if (modality.includes("PIBIC")) return "pbex";
   return "proext";
 }
 

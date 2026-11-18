@@ -1,3 +1,4 @@
+import {sendVerificationForCredentials} from "../../services/emailVerification";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../services/firebase";
 import { useState } from "react";
@@ -54,6 +55,12 @@ export default function LoginForm() {
       if (error.code === "auth/user-not-found") setRecoveryNotice("Se houver uma conta com esse e-mail, você receberá as instruções de recuperação.");
       else setFormError(error.code === "auth/too-many-requests" ? "Muitas tentativas. Aguarde antes de tentar novamente." : "Não foi possível solicitar a recuperação. Verifique sua conexão e tente novamente.");
     } finally { setRecovering(false); }
+  };
+
+  const resendVerification=async()=>{
+    setFormError(null);setRecoveryNotice("");setRecovering(true);
+    try{await sendVerificationForCredentials(identifier,password);setRecoveryNotice("Confirmação enviada. Confira sua caixa de entrada e o spam antes de entrar.");}
+    catch(err){setFormError(err.message);}finally{setRecovering(false);}
   };
 
   const handleSubmit = async (event) => {
@@ -130,6 +137,7 @@ export default function LoginForm() {
         )}
 
         <p role="status" className="text-sm text-primary">{recoveryNotice}</p>
+        <button type="button" onClick={resendVerification} disabled={recovering||loading} className="min-h-11 text-sm font-semibold text-primary">Reenviar confirmação de e-mail</button>
         <Input
           label="Login Institucional (e-mail)"
           type="email"

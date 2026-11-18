@@ -1,3 +1,4 @@
+import {programLabels} from './programLabels';
 import { auth } from './firebase';
 
 async function request(method, body, query = '') {
@@ -10,7 +11,7 @@ async function request(method, body, query = '') {
   });
   const result = await response.json().catch(() => null);
   if (!response.ok || !result) throw new Error(result?.error || 'Não foi possível conectar ao serviço de projetos. Tente novamente.');
-  return result;
+  return programLabels(result);
 }
 const asBase64 = blob => new Promise((resolve,reject) => {
   const reader = new FileReader();
@@ -18,7 +19,7 @@ const asBase64 = blob => new Promise((resolve,reject) => {
   reader.onerror = () => reject(new Error('Não foi possível ler o anexo. Selecione-o novamente.'));
   reader.readAsDataURL(blob);
 });
-export async function uploadFiles(id, files) {
+export async function uploadFiles(id, files, send = body => request('POST',body)) {
   const attachments=[];
   for (const file of files || []) {
     if (!(file instanceof File)) throw new Error('Selecione novamente os anexos do rascunho antes de enviar.');
@@ -27,7 +28,7 @@ export async function uploadFiles(id, files) {
     const parts=Math.ceil(file.size/chunkSize);
     for(let part=0;part<parts;part++) {
       const data=await asBase64(file.slice(part*chunkSize,(part+1)*chunkSize));
-      await request('POST',{action:'upload',id,attachment:{id:fileId,part,data}});
+      await send({action:'upload',id,attachment:{id:fileId,part,data}});
     }
     attachments.push({id:fileId,name:file.name,type:file.type,size:file.size,parts});
   }

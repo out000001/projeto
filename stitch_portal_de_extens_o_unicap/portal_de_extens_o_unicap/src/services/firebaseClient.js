@@ -1,3 +1,4 @@
+import {programLabels} from './programLabels';
 import {
   browserLocalPersistence,
   inMemoryPersistence,
@@ -9,6 +10,7 @@ import {
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 
 const messages = {
+  "auth/email-not-verified": "Confirme seu e-mail antes de entrar. Confira a caixa de entrada e o spam ou use Reenviar confirmação de e-mail.",
   "auth/invalid-credential": "Identificação ou senha inválidos.",
   "auth/invalid-email": "Informe um e-mail válido para entrar.",
   "auth/user-not-found": "Identificação ou senha inválidos.",
@@ -30,6 +32,7 @@ function firebaseError(error) {
 /** Firebase owns sessions; protected users/{uid} documents own roles. */
 export function createFirebaseClient({ auth, firestore }) {
   async function loadUser(firebaseUser) {
+    if(firebaseUser.emailVerified!==true)throw Object.assign(new Error(),{code:"auth/email-not-verified"});
     const snapshot = await getDoc(doc(firestore, "users", firebaseUser.uid));
     const profile = snapshot.exists() ? snapshot.data() : {};
     return {
@@ -77,6 +80,7 @@ export function createFirebaseClient({ auth, firestore }) {
           if (active) onSession(null);
           return;
         }
+        if(firebaseUser.emailVerified!==true){if(active&&current===revision)onSession(null);return;}
         try {
           const user = await loadUser(firebaseUser);
           if (active && current === revision) onSession({ user });
@@ -96,7 +100,7 @@ export function createFirebaseClient({ auth, firestore }) {
       try {
         const snapshot = await getDocs(collection(firestore, "projects"));
         const items = snapshot.docs.map((project) => ({ ...project.data(), id: project.id }));
-        return { total: items.length, items };
+        return { total: items.length, items:programLabels(items) };
       } catch (error) {
         throw firebaseError(error);
       }

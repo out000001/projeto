@@ -1,3 +1,4 @@
+import {programLabels} from './programLabels';
 import {auth} from './firebase';
 export async function portalRequest(path,method='GET',body,{anonymous=false}={}) {
  const headers=body?{'Content-Type':'application/json'}:{};
@@ -8,7 +9,7 @@ export async function portalRequest(path,method='GET',body,{anonymous=false}={})
  const response=await fetch(path,{method,headers,...(body?{body:JSON.stringify(body)}:{})});
  const result=await response.json().catch(()=>null);
  if(!response.ok||!result)throw Object.assign(new Error(result?.error||'Não foi possível conectar ao portal. Tente novamente.'),{status:response.status});
- return result;
+ return programLabels(result);
 }
 export const getAccount=(notifications=false)=>portalRequest(`/api/portal?resource=account${notifications?'&notifications=1':''}`);
 export const saveAccount=(settings,reset=false)=>portalRequest('/api/portal?resource=account','POST',{settings,reset});

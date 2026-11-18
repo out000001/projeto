@@ -22,6 +22,6 @@ https://support.google.com/firebase/answer/7000714?hl=pt-BR
 
 ## Aplicação
 
-O build de produção executa `server/deploy-auth-email-templates.mjs`. O script usa a credencial de serviço já configurada no projeto `portaldeextensaocomunitaria`, sem imprimir tokens ou a chave. A leitura é limitada aos campos dos modelos e idioma; não solicita configuração SMTP. O PATCH usa máscara de campos específica, sem alterar regras de login, MFA, domínios, SMTP ou callback URI. A configuração é lida novamente após a atualização para confirmar os campos.
+A aplicação dos modelos é separada do portal, pelo script administrativo `server/deploy-auth-email-templates.mjs`; ele não faz parte do build normal do site. O script usa a credencial de serviço já configurada no projeto `portaldeextensaocomunitaria`, sem imprimir tokens ou a chave. A leitura é limitada aos campos dos modelos e idioma; não solicita configuração SMTP. O PATCH usa máscara de campos específica, sem alterar regras de login, MFA, domínios, SMTP ou callback URI. A configuração é lida novamente após a atualização para confirmar os campos.
 
-Builds locais e previews não alteram a configuração remota. O cliente Firebase também solicita e-mails em `pt-BR`. Os testes locais verificam placeholders, branding e limite da máscara de atualização. Nenhuma mensagem real é enviada por essa etapa de publicação.
+Builds locais e previews não alteram a configuração remota. Os testes locais verificam placeholders, branding e limite da máscara de atualização. Nenhuma mensagem real é enviada por essa etapa de publicação.

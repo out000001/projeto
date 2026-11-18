@@ -22,6 +22,21 @@ https://support.google.com/firebase/answer/7000714?hl=pt-BR
 
 ## Aplicação
 
-A aplicação dos modelos é separada do portal, pelo script administrativo `server/deploy-auth-email-templates.mjs`; ele não faz parte do build normal do site. O script usa a credencial de serviço já configurada no projeto `portaldeextensaocomunitaria`, sem imprimir tokens ou a chave. A leitura é limitada aos campos dos modelos e idioma; não solicita configuração SMTP. O PATCH usa máscara de campos específica, sem alterar regras de login, MFA, domínios, SMTP ou callback URI. A configuração é lida novamente após a atualização para confirmar os campos.
+Os arquivos são modelos para edição no console do Firebase, separados do código e da publicação do portal. O cabeçalho foi conferido localmente em 720 e 320 CSS px, com endereço e link de exemplo; não houve envio real de mensagem. A tentativa de atualização administrativa usou apenas os campos de modelos e idioma, sem alterar métodos de login, MFA, domínio, SMTP ou callback URI. A rotina experimental foi removida após a recusa da API.
 
-Builds locais e previews não alteram a configuração remota. Os testes locais verificam placeholders, branding e limite da máscara de atualização. Nenhuma mensagem real é enviada por essa etapa de publicação.
+## Resultado da tentativa de aplicação
+
+A API administrativa respondeu `EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED` para os quatro modelos, inclusive para redefinição de senha. Portanto, o cabeçalho e os assuntos preparados **não foram aplicados automaticamente aos e-mails reais**. A edição deve ser concluída no console do Firebase, conforme as permissões disponibilizadas por ele.
+
+O código das telas e o `vercel.json` do portal foram mantidos exatamente como estavam antes desta tarefa. As operações administrativas isoladas foram encerradas sem publicação de conteúdo no site. Não foram enviados e-mails reais de teste.
+
+## Como salvar no console
+
+1. Firebase → Authentication → Modelos.
+2. Abra o modelo desejado e clique no lápis de edição.
+3. Nome do remetente: `Portal de Extensão UNICAP`. Use o assunto correspondente da tabela acima. Mantenha o endereço técnico do remetente e o endereço de resposta existentes.
+4. Em **Redefinição de senha**, cole o HTML de `config/auth-emails/reset-password.html` no campo de mensagem/HTML, caso ele esteja disponível para edição.
+5. Preserve `%LINK%` e `%EMAIL%`. Não substitua o link de ação por uma página do portal.
+6. Salve cada modelo. Nos modelos com corpo bloqueado, personalize apenas os campos que o console liberar.
+
+`COLAR-NO-FIREBASE.txt` reúne os campos e o HTML para copiar. A prévia usa endereço e link de exemplo, sem códigos reais de autenticação.

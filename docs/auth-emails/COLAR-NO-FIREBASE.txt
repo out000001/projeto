@@ -1,0 +1,58 @@
+MODELOS PREPARADOS — APLICAÇÃO MANUAL NO FIREBASE
+Os modelos não foram salvos automaticamente: a API retornou EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED.
+O portal permanece igual.
+
+VERIFICAÇÃO DE E-MAIL
+Nome do remetente: Portal de Extensão UNICAP
+Assunto: Confirme seu e-mail | Portal de Extensão UNICAP
+Mensagem: manter o texto administrado pelo Firebase
+
+REDEFINIÇÃO DE SENHA
+Nome do remetente: Portal de Extensão UNICAP
+Assunto: Redefina sua senha | Portal de Extensão UNICAP
+Mensagem: colar o HTML abaixo
+
+ALTERAÇÃO DE ENDEREÇO DE E-MAIL
+Nome do remetente: Portal de Extensão UNICAP
+Assunto: Alteração de e-mail | Portal de Extensão UNICAP
+Mensagem: manter o texto administrado pelo Firebase
+
+REGISTRO DA AUTENTICAÇÃO MULTIFATOR
+Nome do remetente: Portal de Extensão UNICAP
+Assunto: Novo fator de autenticação | Portal de Extensão UNICAP
+Mensagem: manter o texto administrado pelo Firebase
+
+HTML PARA O CAMPO MENSAGEM DE REDEFINIÇÃO DE SENHA
+
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Redefinição de senha — Portal de Extensão UNICAP</title></head>
+<body style="margin:0;padding:0;background-color:#f6f4f1;color:#242124;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Defina uma nova senha para sua conta no Portal de Extensão UNICAP.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f6f4f1;"><tr><td align="center" style="padding:28px 12px;">
+    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #e6e0dc;border-radius:12px;overflow:hidden;">
+      <tr><td style="background-color:#790d27;padding:30px 28px;border-bottom:4px solid #d7bd8b;">
+        <p style="margin:0;color:#ffffff;font-size:30px;font-weight:700;letter-spacing:1px;">UNICAP</p>
+        <p style="margin:9px 0 0;color:#f6e8ed;font-size:14px;line-height:1.5;">Universidade Católica de Pernambuco<br>Portal de Extensão Comunitária</p>
+      </td></tr>
+      <tr><td style="padding:32px 28px;">
+        <h1 style="margin:0 0 24px;color:#790d27;font-size:25px;line-height:1.3;">Redefina sua senha</h1>
+        <p style="margin:0 0 16px;font-size:16px;line-height:1.7;">Olá!</p>
+        <p style="margin:0 0 16px;font-size:16px;line-height:1.7;">Recebemos uma solicitação para redefinir a senha da conta <strong>%EMAIL%</strong> no Portal de Extensão UNICAP.</p>
+        <p style="margin:0 0 24px;font-size:16px;line-height:1.7;">Use o botão abaixo para escolher uma nova senha.</p>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td bgcolor="#790d27" style="border-radius:8px;"><a href="%LINK%" style="display:inline-block;padding:16px 24px;color:#ffffff;font-size:16px;font-weight:700;line-height:1.4;text-decoration:none;">Redefinir minha senha</a></td></tr></table>
+        <p style="margin:28px 0 12px;font-size:14px;line-height:1.7;color:#60575d;">Se você não fez essa solicitação, ignore este e-mail. Sua senha só será alterada ao definir e confirmar uma nova senha.</p>
+        <p style="margin:0 0 24px;font-size:14px;line-height:1.7;color:#60575d;">Este link é pessoal. Não compartilhe com outras pessoas.</p>
+        <div style="border-top:1px solid #e6e0dc;padding-top:22px;">
+          <p style="margin:0 0 10px;font-size:13px;line-height:1.6;color:#60575d;">Se o botão não funcionar, copie e cole este link no navegador:</p>
+          <p style="margin:0;font-size:12px;line-height:1.7;overflow-wrap:anywhere;word-break:break-all;"><a href="%LINK%" style="color:#790d27;">%LINK%</a></p>
+        </div>
+      </td></tr>
+      <tr><td style="padding:22px 28px;background-color:#faf8f6;border-top:1px solid #e6e0dc;">
+        <p style="margin:0;color:#790d27;font-size:13px;font-weight:700;line-height:1.7;">Portal de Extensão UNICAP</p>
+        <p style="margin:6px 0 0;color:#6c6268;font-size:12px;line-height:1.7;">Mensagem automática sobre a segurança da sua conta. Para obter ajuda, procure a coordenação responsável pelo portal.</p>
+      </td></tr>
+    </table>
+  </td></tr></table>
+</body>
+</html>
